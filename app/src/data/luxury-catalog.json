@@ -1,0 +1,167 @@
+[
+  {
+    "category": "watch",
+    "brand": "Rolex",
+    "models": [
+      { "ref": "116500LN", "name": "Cosmograph Daytona", "dial": "Black", "material": "Oystersteel" },
+      { "ref": "116500LN-WD", "name": "Cosmograph Daytona", "dial": "White", "material": "Oystersteel" },
+      { "ref": "126610LN", "name": "Submariner Date", "dial": "Black", "material": "Oystersteel" },
+      { "ref": "126613LB", "name": "Submariner Date", "dial": "Blue", "material": "Oystersteel/Yellow Gold" },
+      { "ref": "126710BLNR", "name": "GMT-Master II Batman", "dial": "Black/Blue", "material": "Oystersteel" },
+      { "ref": "126710BLRO", "name": "GMT-Master II Pepsi", "dial": "Red/Blue", "material": "Oystersteel" },
+      { "ref": "128235", "name": "Datejust 36", "dial": "Various", "material": "Everose Gold" },
+      { "ref": "228238", "name": "Day-Date 40", "dial": "Various", "material": "Yellow Gold" },
+      { "ref": "214270", "name": "Explorer 36", "dial": "Black", "material": "Oystersteel" },
+      { "ref": "126600", "name": "Sea-Dweller", "dial": "Black", "material": "Oystersteel" }
+    ],
+    "certificate_fields": ["ref", "serial", "year", "condition", "box", "papers", "purchase_price", "purchase_date", "dealer"]
+  },
+  {
+    "category": "watch",
+    "brand": "Patek Philippe",
+    "models": [
+      { "ref": "5711/1A-010", "name": "Nautilus", "dial": "Blue", "material": "Steel" },
+      { "ref": "5726A-001", "name": "Nautilus Annual Calendar", "dial": "Blue", "material": "Steel" },
+      { "ref": "5980/1A-014", "name": "Aquanaut Chronograph", "dial": "Black", "material": "Steel" },
+      { "ref": "5167A-001", "name": "Aquanaut", "dial": "Black", "material": "Steel" },
+      { "ref": "5196P-001", "name": "Calatrava", "dial": "Silver", "material": "Platinum" },
+      { "ref": "5270P-001", "name": "Perpetual Calendar Chronograph", "dial": "Blue", "material": "Platinum" },
+      { "ref": "5205G-013", "name": "Annual Calendar", "dial": "Anthracite", "material": "White Gold" }
+    ],
+    "certificate_fields": ["ref", "serial", "year", "condition", "box", "papers", "movement_extract", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "watch",
+    "brand": "Audemars Piguet",
+    "models": [
+      { "ref": "15202ST.OO.1240ST.01", "name": "Royal Oak Jumbo Extra-Thin", "dial": "Blue", "material": "Steel" },
+      { "ref": "15400ST.OO.1220ST.01", "name": "Royal Oak", "dial": "Blue", "material": "Steel" },
+      { "ref": "26480TI.OO.A027CA.01", "name": "Royal Oak Offshore Chronograph", "dial": "Grey", "material": "Titanium" },
+      { "ref": "26240ST.OO.1320ST.04", "name": "Royal Oak Chronograph", "dial": "Smoky Grey", "material": "Steel" }
+    ],
+    "certificate_fields": ["ref", "serial", "year", "condition", "box", "papers", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "watch",
+    "brand": "Richard Mille",
+    "models": [
+      { "ref": "RM 011", "name": "RM 011 Felipe Massa", "dial": "Various", "material": "Titanium/Carbon" },
+      { "ref": "RM 035", "name": "RM 035 Americas", "dial": "Skeleton", "material": "NTPT Carbon" },
+      { "ref": "RM 055", "name": "RM 055 Bubba Watson", "dial": "Skeleton", "material": "White ATZ" },
+      { "ref": "RM 027", "name": "RM 027 Tourbillon Nadal", "dial": "Skeleton", "material": "NTPT Carbon" }
+    ],
+    "certificate_fields": ["ref", "serial", "year", "condition", "box", "papers", "warranty_card", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "watch",
+    "brand": "Cartier",
+    "models": [
+      { "ref": "WSSA0029", "name": "Santos de Cartier Large", "dial": "Silver", "material": "Steel" },
+      { "ref": "W2SA0016", "name": "Santos de Cartier Large Bicolore", "dial": "Silver", "material": "Steel/Yellow Gold" },
+      { "ref": "W6920042", "name": "Tank Louis Cartier", "dial": "Silver", "material": "Yellow Gold" },
+      { "ref": "WGBB0024", "name": "Ballon Bleu 40mm", "dial": "Silver", "material": "Yellow Gold" },
+      { "ref": "W3140007", "name": "Pasha de Cartier 41mm", "dial": "White", "material": "Steel" }
+    ],
+    "certificate_fields": ["ref", "serial", "year", "condition", "box", "papers", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "handbag",
+    "brand": "Hermès",
+    "models": [
+      { "ref": "B25", "name": "Birkin 25", "material": "Togo/Epsom/Clémence", "hardware": "Gold/Palladium/Ruthenium" },
+      { "ref": "B30", "name": "Birkin 30", "material": "Togo/Epsom/Clémence", "hardware": "Gold/Palladium" },
+      { "ref": "B35", "name": "Birkin 35", "material": "Togo/Epsom/Clémence", "hardware": "Gold/Palladium" },
+      { "ref": "K25", "name": "Kelly 25 Sellier", "material": "Epsom/Box Calf", "hardware": "Gold/Palladium" },
+      { "ref": "K28", "name": "Kelly 28 Retourné", "material": "Togo/Clémence", "hardware": "Gold/Palladium" },
+      { "ref": "K32", "name": "Kelly 32 Retourné", "material": "Togo/Clémence", "hardware": "Gold/Palladium" },
+      { "ref": "C14", "name": "Constance 14 Mini", "material": "Epsom", "hardware": "Gold/Palladium" },
+      { "ref": "C18", "name": "Constance 18", "material": "Epsom", "hardware": "Gold/Palladium" },
+      { "ref": "C24", "name": "Constance 24", "material": "Epsom", "hardware": "Gold/Palladium" },
+      { "ref": "LY26", "name": "Lindy 26", "material": "Clémence/Swift", "hardware": "Palladium" }
+    ],
+    "certificate_fields": ["ref", "year", "color", "material", "hardware", "condition", "blind_stamp", "box", "dustbag", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "handbag",
+    "brand": "Chanel",
+    "models": [
+      { "ref": "A01112", "name": "Classic Flap Small", "material": "Caviar/Lambskin", "hardware": "Gold/Silver" },
+      { "ref": "A01112-M", "name": "Classic Flap Medium", "material": "Caviar/Lambskin", "hardware": "Gold/Silver" },
+      { "ref": "A01112-L", "name": "Classic Flap Jumbo", "material": "Caviar/Lambskin", "hardware": "Gold/Silver" },
+      { "ref": "A37586", "name": "2.55 Reissue 224", "material": "Aged Calfskin", "hardware": "Aged Gold" },
+      { "ref": "A67086", "name": "Boy Chanel Small", "material": "Calfskin/Lambskin", "hardware": "Gold/Silver/Ruthenium" },
+      { "ref": "A14041", "name": "WOC Wallet on Chain", "material": "Caviar/Lambskin", "hardware": "Gold/Silver" }
+    ],
+    "certificate_fields": ["ref", "serial_sticker", "year", "color", "material", "hardware", "condition", "authenticity_card", "box", "dustbag", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "handbag",
+    "brand": "Louis Vuitton",
+    "models": [
+      { "ref": "M44840", "name": "Capucines MM", "material": "Taurillon", "hardware": "Gold" },
+      { "ref": "M59009", "name": "Twist MM", "material": "Epi Leather", "hardware": "Gold" },
+      { "ref": "M59273", "name": "Petite Malle", "material": "Monogram", "hardware": "Gold" },
+      { "ref": "M45831", "name": "Coussin MM", "material": "Lambskin", "hardware": "Gold" }
+    ],
+    "certificate_fields": ["ref", "date_code", "year", "condition", "dustbag", "box", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "sneaker",
+    "brand": "Nike",
+    "models": [
+      { "ref": "555088-101", "name": "Air Jordan 1 Retro High OG White/Black-Red Chicago", "year": "2022" },
+      { "ref": "DZ5485-612", "name": "Air Jordan 1 Retro High OG Lost & Found", "year": "2022" },
+      { "ref": "DD1391-100", "name": "Nike Dunk Low Panda", "year": "2021" },
+      { "ref": "DH4401-001", "name": "Nike Dunk Low Black White Panda 2022", "year": "2022" },
+      { "ref": "CU1726-001", "name": "Nike Dunk High x Off-White Pine Green", "year": "2020" },
+      { "ref": "AA3834-003", "name": "Nike Air Force 1 x Off-White", "year": "2017" },
+      { "ref": "DO9392-100", "name": "Nike Air Jordan 4 Retro Military Black", "year": "2022" },
+      { "ref": "408452-103", "name": "Nike Air Jordan 11 Retro Concord", "year": "2018" },
+      { "ref": "FD2596-100", "name": "Nike x Travis Scott Air Jordan 1 Mocha", "year": "2019" },
+      { "ref": "CD4487-100", "name": "Nike Dunk Low x sacai White Nylon", "year": "2021" }
+    ],
+    "certificate_fields": ["sku", "colorway", "size_us", "size_eu", "year", "condition", "box", "laces", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "sneaker",
+    "brand": "Adidas",
+    "models": [
+      { "ref": "GW1229", "name": "Yeezy Boost 350 V2 Natural", "year": "2021" },
+      { "ref": "HQ2060", "name": "Yeezy Boost 350 V2 Onyx", "year": "2022" },
+      { "ref": "GZ0724", "name": "Yeezy Foam Runner Sand", "year": "2021" },
+      { "ref": "GX3607", "name": "Yeezy 700 V3 Fade Carbon", "year": "2021" },
+      { "ref": "FX7616", "name": "Yeezy 450 Cloud White", "year": "2021" }
+    ],
+    "certificate_fields": ["sku", "colorway", "size_us", "size_eu", "year", "condition", "box", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "sneaker",
+    "brand": "New Balance",
+    "models": [
+      { "ref": "U9060AAA", "name": "New Balance 9060 x Joe Freshgoods", "year": "2022" },
+      { "ref": "M2002RXG", "name": "New Balance 2002R Protection Pack Slate", "year": "2022" },
+      { "ref": "U574LGG1", "name": "New Balance 574 x Aime Leon Dore", "year": "2022" }
+    ],
+    "certificate_fields": ["sku", "colorway", "size_us", "size_eu", "year", "condition", "box", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "other",
+    "brand": "Cartier",
+    "models": [
+      { "ref": "B6067717", "name": "Love Bracelet Yellow Gold", "material": "750 Yellow Gold", "size": "16/17/18/19/20/21" },
+      { "ref": "B6036717", "name": "Love Bracelet White Gold", "material": "750 White Gold", "size": "16/17/18/19/20/21" },
+      { "ref": "B6048417", "name": "Juste un Clou Bracelet Yellow Gold", "material": "750 Yellow Gold", "size": "16/17/18/19/20/21" }
+    ],
+    "certificate_fields": ["ref", "material", "size", "condition", "box", "certificate_card", "receipt", "purchase_price", "purchase_date"]
+  },
+  {
+    "category": "other",
+    "brand": "Van Cleef & Arpels",
+    "models": [
+      { "ref": "VCARP3R900", "name": "Vintage Alhambra Bracelet 5 motifs", "material": "Yellow Gold/Onyx", "motifs": 5 },
+      { "ref": "VCARP7RA00", "name": "Magic Alhambra Bracelet 16 motifs", "material": "Yellow Gold/Turquoise", "motifs": 16 },
+      { "ref": "VCARP3RD00", "name": "Vintage Alhambra Necklace 20 motifs", "material": "Yellow Gold/Mother-of-Pearl", "motifs": 20 }
+    ],
+    "certificate_fields": ["ref", "material", "motifs", "condition", "box", "certificate_card", "receipt", "purchase_price", "purchase_date"]
+  }
+]

@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "expo.vscode-expo-tools",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-vscode.vscode-typescript-next",
+    "msjsdiag.vscode-react-native",
+    "supabase.vscode-supabase-extension",
+    "prisma.prisma",
+    "eamodio.gitlens",
+    "usernamehw.errorlens",
+    "christian-kohler.path-intellisense",
+    "yoavbls.pretty-ts-errors",
+    "wix.vscode-import-cost",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-french",
+    "github.copilot",
+    "mikestead.dotenv",
+    "redhat.vscode-yaml"
+  ]
+}
