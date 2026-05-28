@@ -1,0 +1,49 @@
+# Claude Code local settings (may contain API keys)
+.claude/
+
+# Node
+node_modules/
+.pnpm-store/
+
+# Expo
+app/.expo/
+app/dist/
+app/web-build/
+app/expo-env.d.ts
+app/android/
+app/ios/
+*.apk
+*.aab
+
+# Environment — NEVER commit secrets
+app/.env
+app/.env.local
+app/.env.*.local
+
+# Supabase
+supabase/.temp/
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Windows
+Thumbs.db
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# TypeScript
+*.tsbuildinfo
+
+# Tests
+coverage/
