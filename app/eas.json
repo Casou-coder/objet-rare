@@ -19,10 +19,6 @@
     "preview": {
       "distribution": "internal",
       "channel": "preview",
-      "ios": {
-        "simulator": false,
-        "enterpriseProvisioning": "universal"
-      },
       "env": {
         "APP_ENV": "preview"
       }

@@ -28,7 +28,7 @@ export function LockScreen() {
         <Lock color={colors.gold} size={36} />
       </View>
 
-      <Text className="mt-8 font-serif text-3xl text-ink dark:text-bone">Objet Rare</Text>
+      <Text className="mt-8 font-serif text-3xl text-ink dark:text-bone">OR Vault</Text>
       <Text className="mt-2 text-sm text-ink-mute dark:text-bone-soft">
         {t('lock.title')}
       </Text>

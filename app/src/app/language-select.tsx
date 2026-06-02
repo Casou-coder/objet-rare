@@ -35,7 +35,7 @@ export default function LanguageSelectScreen() {
           <Crown color={colors.gold} size={36} />
         </View>
 
-        <Text className="font-serif text-3xl text-ink dark:text-bone mb-1">Objet Rare</Text>
+        <Text className="font-serif text-3xl text-ink dark:text-bone mb-1">OR Vault</Text>
 
         <Text className="text-center text-lg font-semibold text-ink dark:text-bone mt-6 mb-2">
           {t('languageSelect.title')}

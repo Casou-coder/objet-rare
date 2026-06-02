@@ -31,7 +31,7 @@ export default function LoginScreen() {
 
   return (
     <View className="flex-1 justify-center bg-bone dark:bg-ink px-6">
-      <Text className="mb-2 font-serif text-4xl text-ink dark:text-bone">Objet Rare</Text>
+      <Text className="mb-2 font-serif text-4xl text-ink dark:text-bone">OR Vault</Text>
       <Text className="mb-10 text-ink-mute dark:text-bone-soft">{t('auth.tagline')}</Text>
 
       <View className="mb-4">

@@ -334,7 +334,7 @@ const en = {
 
   // ── Premium screen ────────────────────────────────────────────────────────────
   premium: {
-    headline: 'Objet Rare',
+    headline: 'OR Vault',
     subheadline: 'Premium',
     tagline: 'Protect and enhance your collection\nwith no limits.',
 
@@ -385,7 +385,7 @@ const en = {
     slide3Title: 'Prove the value\nof every item',
     slide3Body: 'Generate a digital passport for each piece. Perfect for resale, lending or insurance.',
     slide4Title: 'Never miss an\nexpiration',
-    slide4Body: "Objet Rare alerts you 30 days and 7 days before a warranty expires, so you're never caught off guard.",
+    slide4Body: "OR Vault alerts you 30 days and 7 days before a warranty expires, so you're never caught off guard.",
     notifTitle: 'Enable notifications',
     notifLater: 'Later',
     trackingTitle: 'Help us\nimprove the app',
@@ -413,7 +413,7 @@ const en = {
     slide5Title: 'Private mode',
     slide5Body: "Tap the eye icon in the Collection tab to hide the total value and item count.\n\nUseful when traveling, in the presence of others, or simply to preserve your privacy.",
     slide6Title: 'Premium',
-    slide6Body: "The free version lets you catalog up to 3 items.\n\nPremium unlocks: unlimited collection, advanced OCR extraction on your documents and PDF passport generation per item.",
+    slide6Body: "The free version lets you catalog up to 2 items.\n\nPremium unlocks: unlimited collection, advanced OCR extraction on your documents and PDF passport generation per item.",
     done: 'Done',
   },
 
@@ -471,7 +471,7 @@ const en = {
     title: 'Your vault is locked',
     failed: 'Authentication failed. Try again.',
     unlock: 'Unlock',
-    promptMessage: 'Unlock Objet Rare',
+    promptMessage: 'Unlock OR Vault',
     fallbackLabel: 'Use passcode',
   },
 
@@ -485,7 +485,7 @@ const en = {
 
   // ── BannerAd ──────────────────────────────────────────────────────────────────
   banner: {
-    title: 'Objet Rare Premium',
+    title: 'OR Vault Premium',
     desc: 'Remove ads · Unlimited collection · Advanced OCR',
     cta: 'View',
   },

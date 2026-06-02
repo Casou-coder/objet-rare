@@ -334,7 +334,7 @@ const fr = {
 
   // ── Premium screen ────────────────────────────────────────────────────────────
   premium: {
-    headline: 'Objet Rare',
+    headline: 'OR Vault',
     subheadline: 'Premium',
     tagline: 'Protège et valorise ta collection\nsans aucune limite.',
 
@@ -385,7 +385,7 @@ const fr = {
     slide3Title: 'Prouve la valeur\nde chaque objet',
     slide3Body: 'Génère un passeport digital pour chaque pièce. Parfait pour la revente, le prêt ou l\'assurance.',
     slide4Title: 'Ne rate aucune\nexpiration',
-    slide4Body: "Objet Rare t'avertit 30 jours et 7 jours avant l'expiration d'une garantie, pour que tu ne sois jamais pris de court.",
+    slide4Body: "OR Vault t'avertit 30 jours et 7 jours avant l'expiration d'une garantie, pour que tu ne sois jamais pris de court.",
     notifTitle: 'Activer les notifications',
     notifLater: 'Plus tard',
     trackingTitle: 'Aide-nous à\naméliorer l\'app',
@@ -413,7 +413,7 @@ const fr = {
     slide5Title: 'Mode privé',
     slide5Body: "Appuie sur l'icône œil dans l'onglet Collection pour masquer la valeur totale et le nombre d'objets.\n\nUtile en déplacement, en présence de tiers, ou simplement pour préserver ta confidentialité.",
     slide6Title: 'Premium',
-    slide6Body: "La version gratuite permet de cataloguer jusqu'à 3 objets.\n\nPremium débloque : collection illimitée, extraction OCR avancée sur tes documents et génération d'un passeport PDF par objet.",
+    slide6Body: "La version gratuite permet de cataloguer jusqu'à 2 objets.\n\nPremium débloque : collection illimitée, extraction OCR avancée sur tes documents et génération d'un passeport PDF par objet.",
     done: 'Terminé',
   },
 
@@ -471,7 +471,7 @@ const fr = {
     title: 'Ton coffre est verrouillé',
     failed: 'Authentification échouée. Réessaie.',
     unlock: 'Déverrouiller',
-    promptMessage: 'Déverrouillez Objet Rare',
+    promptMessage: 'Déverrouillez OR Vault',
     fallbackLabel: 'Utiliser le code',
   },
 
@@ -485,7 +485,7 @@ const fr = {
 
   // ── BannerAd ──────────────────────────────────────────────────────────────────
   banner: {
-    title: 'Objet Rare Premium',
+    title: 'OR Vault Premium',
     desc: 'Supprimez les pubs · Collection illimitée · OCR avancé',
     cta: 'Voir',
   },
