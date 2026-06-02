@@ -1,4 +1,5 @@
 import '../../global.css';
+import '@/lib/i18n';
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { Stack } from 'expo-router';
@@ -11,6 +12,7 @@ import { useColorScheme } from 'nativewind';
 import { queryClient } from '@/lib/query-client';
 import { useAuth } from '@/stores/auth';
 import { usePreferences } from '@/stores/preferences';
+import { router } from 'expo-router';
 import { useBiometric } from '@/stores/biometric';
 import { LockScreen } from '@/components/LockScreen';
 import { initPurchases, loginPurchases, logoutPurchases } from '@/features/premium/purchases';
@@ -25,15 +27,24 @@ const persister = createAsyncStoragePersister({
 });
 
 export default function RootLayout() {
-  const user    = useAuth((s) => s.user);
-  const session = useAuth((s) => s.session);
-  const theme   = usePreferences((s) => s.theme);
+  const user     = useAuth((s) => s.user);
+  const session  = useAuth((s) => s.session);
+  const theme    = usePreferences((s) => s.theme);
+  const language = usePreferences((s) => s.language);
+  const hydrated = usePreferences((s) => s.hydrated);
   const { setColorScheme } = useColorScheme();
-  const lock    = useBiometric((s) => s.lock);
-  const locked  = useBiometric((s) => s.locked);
+  const lock     = useBiometric((s) => s.lock);
+  const locked   = useBiometric((s) => s.locked);
 
   // Keep nativewind in sync with the preferences store
   useEffect(() => { setColorScheme(theme); }, [theme, setColorScheme]);
+
+  // Redirect to language selector on first launch
+  useEffect(() => {
+    if (hydrated && !language) {
+      router.replace('/language-select');
+    }
+  }, [hydrated, language]);
 
   useEffect(() => { initPurchases(); }, []);
 
@@ -85,7 +96,8 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding"      options={{ headerShown: false }} />
           <Stack.Screen name="premium"         options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="tutorial"        options={{ presentation: 'modal', headerShown: false }} />
-          <Stack.Screen name="privacy-policy" options={{ presentation: 'card', headerShown: false }} />
+          <Stack.Screen name="privacy-policy"   options={{ presentation: 'card', headerShown: false }} />
+          <Stack.Screen name="language-select"  options={{ headerShown: false }} />
         </Stack>
         {session && locked && <LockScreen />}
       </SafeAreaProvider>

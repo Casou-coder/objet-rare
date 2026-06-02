@@ -7,6 +7,7 @@ import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronDown, ChevronUp,
   FileCheck, Camera, Pencil,
@@ -21,7 +22,6 @@ import { getDocumentUrl } from '@/features/documents/api';
 import { OcrBadge } from '@/features/documents/OcrBadge';
 import { useAuth } from '@/stores/auth';
 import { usePlan } from '@/features/premium/usePlan';
-import { categoryLabel, conditionLabel } from '@/lib/labels';
 import { CATEGORY_ICON } from '@/lib/categories';
 import { useBackHeader } from '@/lib/useBackHeader';
 import { generatePassportPdf } from '@/lib/generatePassportPdf';
@@ -31,41 +31,34 @@ import { colors } from '@/lib/theme';
 import { haptic } from '@/lib/haptics';
 import type { DocumentRow, DocumentType } from '@/types/database';
 
-const OCR_LABELS: Record<string, string> = {
-  amount: 'Montant', total_amount: 'Montant total', price: 'Prix', total: 'Total',
-  date: 'Date', invoice_date: 'Date de facture', issued_at: 'Émis le',
-  expiry_date: "Date d'expiration", warranty_expires: "Garantie jusqu'au",
-  vendor: 'Vendeur', seller: 'Vendeur', buyer: 'Acheteur',
-  description: 'Description', brand: 'Marque', model: 'Modèle',
-  serial_number: 'Numéro de série', reference: 'Référence',
-  currency: 'Devise', invoice_number: 'N° facture', certificate_number: 'N° certificat',
-  condition: 'État', authenticity: 'Authenticité', notes: 'Notes',
-};
-
-const TYPE_META: Record<DocumentType, { label: string; icon: React.ComponentType<{ color: string; size: number }> }> = {
-  invoice:     { label: 'Facture',    icon: Receipt },
-  certificate: { label: 'Certificat', icon: Award },
-  warranty:    { label: 'Garantie',   icon: ShieldCheck },
-  other:       { label: 'Autre',      icon: FileText },
-};
-
-// ── 3-dot action menu ────────────────────────────────────────────────────────
-
 type MenuView = 'actions' | 'rename' | 'ocr';
 
 function DocActionMenu({
-  doc,
-  onClose,
-  onDelete,
-  onRename,
+  doc, onClose, onDelete, onRename,
 }: {
   doc: DocumentRow | null;
   onClose: () => void;
   onDelete: (doc: DocumentRow) => void;
   onRename: (doc: DocumentRow, filename: string) => void;
 }) {
+  const { t } = useTranslation();
   const [view, setView] = useState<MenuView>('actions');
   const [name, setName] = useState('');
+
+  const OCR_LABELS: Record<string, string> = {
+    amount: t('coffre.extractedFields.amount'), total_amount: t('coffre.extractedFields.totalAmount'),
+    price: t('coffre.extractedFields.price'), total: t('coffre.extractedFields.total'),
+    date: t('coffre.extractedFields.date'), invoice_date: t('coffre.extractedFields.invoiceDate'),
+    issued_at: t('coffre.extractedFields.issuedOn'), expiry_date: t('coffre.extractedFields.expiryDate'),
+    warranty_expires: t('coffre.extractedFields.warrantyUntil'), vendor: t('coffre.extractedFields.seller'),
+    seller: t('coffre.extractedFields.seller'), buyer: t('coffre.extractedFields.buyer'),
+    description: t('coffre.extractedFields.description'), brand: t('coffre.extractedFields.brand'),
+    model: t('coffre.extractedFields.model'), serial_number: t('coffre.extractedFields.serialNumber'),
+    reference: t('coffre.extractedFields.reference'), currency: t('coffre.extractedFields.currency'),
+    invoice_number: t('coffre.extractedFields.invoiceNumber'), certificate_number: t('coffre.extractedFields.certNumber'),
+    condition: t('coffre.extractedFields.condition'), authenticity: t('coffre.extractedFields.authenticity'),
+    notes: t('coffre.extractedFields.notes'),
+  };
 
   useEffect(() => {
     if (doc) { setView('actions'); setName(doc.filename); }
@@ -83,17 +76,17 @@ function DocActionMenu({
       const url = await getDocumentUrl(doc.storage_path);
       await Linking.openURL(url);
     } catch {
-      Alert.alert('Indisponible', 'Ce fichier n\'est pas encore uploadé dans le coffre.');
+      Alert.alert(t('item.fileNotReady'), t('item.fileNotReadyMsg'));
     }
   };
 
   const handleDelete = () => {
     Alert.alert(
-      'Supprimer le document',
-      `Supprimer définitivement "${doc.filename}" ?`,
+      t('item.deleteDocTitle'),
+      t('item.deleteDocMsg', { filename: doc.filename }),
       [
-        { text: 'Annuler', style: 'cancel' },
-        { text: 'Supprimer', style: 'destructive', onPress: () => { onClose(); onDelete(doc); } },
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.delete'), style: 'destructive', onPress: () => { onClose(); onDelete(doc); } },
       ],
     );
   };
@@ -103,24 +96,23 @@ function DocActionMenu({
       <View className="flex-1 justify-end bg-black/60">
         <Pressable className="absolute inset-0" onPress={onClose} />
         <View className="rounded-t-3xl bg-white dark:bg-ink-soft px-6 pb-10 pt-4">
-
           <View className="mb-4 h-1 w-10 self-center rounded-full bg-gray-200 dark:bg-ink-mute" />
 
           {view === 'actions' && (
             <>
               <Text className="mb-4 font-serif text-base text-ink dark:text-bone" numberOfLines={1}>{doc.filename}</Text>
-              <ActionRow icon={Pencil} label="Renommer" onPress={() => setView('rename')} />
+              <ActionRow icon={Pencil} label={t('common.rename')} onPress={() => setView('rename')} />
               {ocrEntries.length > 0 && (
-                <ActionRow icon={ScanLine} label="Données extraites" onPress={() => setView('ocr')} />
+                <ActionRow icon={ScanLine} label={t('coffre.extractedData')} onPress={() => setView('ocr')} />
               )}
-              <ActionRow icon={Download} label="Télécharger / Ouvrir" onPress={handleDownload} />
-              <ActionRow icon={Trash2} label="Supprimer" onPress={handleDelete} destructive />
+              <ActionRow icon={Download} label={t('item.openDownload')} onPress={handleDownload} />
+              <ActionRow icon={Trash2} label={t('common.delete')} onPress={handleDelete} destructive />
             </>
           )}
 
           {view === 'rename' && (
             <>
-              <Text className="mb-3 text-xs uppercase tracking-wider text-gold">Renommer</Text>
+              <Text className="mb-3 text-xs uppercase tracking-wider text-gold">{t('common.rename')}</Text>
               <TextInput
                 value={name}
                 onChangeText={setName}
@@ -134,13 +126,13 @@ function DocActionMenu({
                   onPress={() => setView('actions')}
                   className="flex-1 items-center rounded-xl border border-gray-200 dark:border-ink-mute py-3"
                 >
-                  <Text className="text-ink-mute dark:text-bone-soft">Annuler</Text>
+                  <Text className="text-ink-mute dark:text-bone-soft">{t('common.cancel')}</Text>
                 </Pressable>
                 <Pressable
                   onPress={() => { onRename(doc, name.trim() || doc.filename); onClose(); }}
                   className="flex-1 items-center rounded-xl bg-gold py-3"
                 >
-                  <Text className="font-semibold text-ink">Enregistrer</Text>
+                  <Text className="font-semibold text-ink">{t('common.save')}</Text>
                 </Pressable>
               </View>
             </>
@@ -149,9 +141,9 @@ function DocActionMenu({
           {view === 'ocr' && (
             <>
               <View className="mb-4 flex-row items-center justify-between">
-                <Text className="font-serif text-base text-ink dark:text-bone">Données extraites</Text>
+                <Text className="font-serif text-base text-ink dark:text-bone">{t('coffre.extractedData')}</Text>
                 <Pressable onPress={() => setView('actions')} hitSlop={8} className="active:opacity-60">
-                  <Text className="text-sm text-gold">← Retour</Text>
+                  <Text className="text-sm text-gold">← {t('common.back')}</Text>
                 </Pressable>
               </View>
               {ocrEntries.map(([key, value]) => (
@@ -191,15 +183,18 @@ function ActionRow({
   );
 }
 
-// ── Doc row with 3-dot button ────────────────────────────────────────────────
-
 function CompactDocRow({
-  doc,
-  onMenuOpen,
+  doc, onMenuOpen,
 }: {
   doc: DocumentRow;
   onMenuOpen: (doc: DocumentRow) => void;
 }) {
+  const TYPE_META: Record<DocumentType, { icon: React.ComponentType<{ color: string; size: number }> }> = {
+    invoice:     { icon: Receipt },
+    certificate: { icon: Award },
+    warranty:    { icon: ShieldCheck },
+    other:       { icon: FileText },
+  };
   const { icon: Icon } = TYPE_META[doc.type];
   return (
     <View className="flex-row items-center gap-3 border-b border-gray-200 dark:border-ink-mute py-2.5 last:border-0">
@@ -213,9 +208,8 @@ function CompactDocRow({
   );
 }
 
-// ── Main screen ──────────────────────────────────────────────────────────────
-
 export default function ItemPassportScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: item, isLoading, error } = useItem(id);
   const { data: docs } = useDocuments(id);
@@ -229,7 +223,7 @@ export default function ItemPassportScreen() {
   const [docsExpanded, setDocsExpanded] = useState(false);
   const [menuDoc, setMenuDoc] = useState<DocumentRow | null>(null);
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
-  const backHeader = useBackHeader('Passeport produit');
+  const backHeader = useBackHeader(t('item.passportTitle'));
   const coverUrl = useSignedPhotoUrl(item?.cover_photo_url);
 
   const handleExportPdf = async () => {
@@ -239,11 +233,11 @@ export default function ItemPassportScreen() {
       const uri = await generatePassportPdf(item);
       await Sharing.shareAsync(uri, {
         mimeType: 'application/pdf',
-        dialogTitle: `Passeport — ${item.name}`,
+        dialogTitle: `${t('item.passportTitle')} — ${item.name}`,
         UTI: 'com.adobe.pdf',
       });
     } catch (e: any) {
-      Alert.alert('Erreur', e.message ?? 'Impossible de générer le PDF.');
+      Alert.alert(t('common.error'), e.message ?? t('item.pdfError'));
     } finally {
       setIsPdfGenerating(false);
     }
@@ -251,13 +245,13 @@ export default function ItemPassportScreen() {
 
   const handleUpload = (uri: string) =>
     uploadCover(uri, {
-      onError: (e: any) => Alert.alert('Erreur', e.message ?? 'Impossible de charger la photo.'),
+      onError: (e: any) => Alert.alert(t('common.error'), e.message ?? t('item.photoError')),
     });
 
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission refusée', 'Autorise l\'accès à la caméra dans les réglages.');
+      Alert.alert(t('item.cameraPermDenied'), t('item.cameraPermMsg'));
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -282,14 +276,14 @@ export default function ItemPassportScreen() {
   const showPhotoPicker = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
-        { options: ['Annuler', 'Prendre une photo', 'Choisir depuis la galerie'], cancelButtonIndex: 0 },
+        { options: [t('common.cancel'), t('item.takePhoto'), t('item.chooseFromGallery')], cancelButtonIndex: 0 },
         (i) => { if (i === 1) takePhoto(); if (i === 2) pickFromGallery(); },
       );
     } else {
-      Alert.alert('Photo de couverture', '', [
-        { text: 'Prendre une photo', onPress: takePhoto },
-        { text: 'Choisir depuis la galerie', onPress: pickFromGallery },
-        { text: 'Annuler', style: 'cancel' },
+      Alert.alert('', '', [
+        { text: t('item.takePhoto'), onPress: takePhoto },
+        { text: t('item.chooseFromGallery'), onPress: pickFromGallery },
+        { text: t('common.cancel'), style: 'cancel' },
       ]);
     }
   };
@@ -305,12 +299,12 @@ export default function ItemPassportScreen() {
                   onPress={() => {
                     haptic.error();
                     Alert.alert(
-                      'Supprimer cet objet ?',
-                      `"${item.name}" et tous ses documents seront définitivement supprimés.`,
+                      t('item.deleteTitle'),
+                      t('item.deleteMsg', { itemName: item.name }),
                       [
-                        { text: 'Annuler', style: 'cancel' },
+                        { text: t('common.cancel'), style: 'cancel' },
                         {
-                          text: 'Supprimer',
+                          text: t('common.delete'),
                           style: 'destructive',
                           onPress: async () => {
                             await deleteItem(item.id);
@@ -345,11 +339,10 @@ export default function ItemPassportScreen() {
         </View>
       ) : error || !item ? (
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-ink-mute dark:text-bone-soft">Objet introuvable.</Text>
+          <Text className="text-ink-mute dark:text-bone-soft">{t('item.notFound')}</Text>
         </View>
       ) : (
         <ScrollView contentContainerClassName="pb-32">
-          {/* Cover photo */}
           {(() => {
             const CategoryIcon = CATEGORY_ICON[item.category];
             return (
@@ -359,7 +352,7 @@ export default function ItemPassportScreen() {
                 ) : (
                   <View className="flex-1 items-center justify-center gap-2">
                     <CategoryIcon color={colors.inkGray} size={48} />
-                    <Text className="text-xs text-ink-mute dark:text-bone-soft">Ajouter une photo</Text>
+                    <Text className="text-xs text-ink-mute dark:text-bone-soft">{t('item.addPhoto')}</Text>
                   </View>
                 )}
                 {isUploading && (
@@ -382,32 +375,32 @@ export default function ItemPassportScreen() {
 
           <View className="px-6">
             <Text className="mt-4 text-xs uppercase tracking-wider text-gold">
-              {categoryLabel[item.category] ?? item.category}
+              {t(`item.categories.${item.category}`, { defaultValue: item.category })}
             </Text>
             <Text className="mt-1 font-serif text-3xl text-ink dark:text-bone">{item.name}</Text>
             <Text className="text-lg text-ink-mute dark:text-bone-soft">{item.brand}</Text>
 
             <View className="mt-6 rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4">
-              <Text className="mb-3 text-xs uppercase tracking-wider text-gold">Identité</Text>
-              <Row label="Marque" value={item.brand} />
-              <Row label="Modèle" value={item.model} />
-              <Row label="Référence" value={item.serial_number} />
-              <Row label="État" value={conditionLabel[item.condition] ?? item.condition} />
+              <Text className="mb-3 text-xs uppercase tracking-wider text-gold">{t('item.identity')}</Text>
+              <Row label={t('item.brand')} value={item.brand} />
+              <Row label={t('item.model')} value={item.model} />
+              <Row label={t('item.reference')} value={item.serial_number} />
+              <Row label={t('item.condition')} value={t(`item.conditionValues.${item.condition}`, { defaultValue: item.condition })} />
               <Row
-                label="Authenticité"
-                value={item.is_authenticated ? 'Authentifié ✓' : 'Non vérifié'}
+                label={t('item.authenticity')}
+                value={item.is_authenticated ? t('item.authenticated') : t('item.notVerified')}
                 highlight={item.is_authenticated}
               />
             </View>
 
             <View className="mt-4 rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4">
-              <Text className="mb-3 text-xs uppercase tracking-wider text-gold">Acquisition</Text>
-              <Row label="Date d'achat" value={item.purchase_date} />
+              <Text className="mb-3 text-xs uppercase tracking-wider text-gold">{t('item.acquisition')}</Text>
+              <Row label={t('item.purchaseDate')} value={item.purchase_date} />
               <Row
-                label="Prix payé"
+                label={t('item.purchasePrice')}
                 value={
                   item.purchase_price != null
-                    ? `${item.purchase_price.toLocaleString('fr-FR')} ${item.purchase_currency ?? 'EUR'}`
+                    ? `${item.purchase_price.toLocaleString()} ${item.purchase_currency ?? 'EUR'}`
                     : null
                 }
               />
@@ -423,7 +416,7 @@ export default function ItemPassportScreen() {
                   <View className="flex-row items-center gap-2 mb-2">
                     <AlertTriangle color="#D97706" size={16} />
                     <Text className="text-sm font-semibold text-amber-700 dark:text-amber-400">
-                      {expiringDocs.length === 1 ? 'Garantie bientôt expirée' : 'Garanties bientôt expirées'}
+                      {t('item.warrantyExpiry', { count: expiringDocs.length })}
                     </Text>
                   </View>
                   {expiringDocs.map((d) => {
@@ -432,7 +425,7 @@ export default function ItemPassportScreen() {
                       <View key={d.id} className="flex-row items-center justify-between py-1">
                         <Text className="flex-1 text-sm text-amber-700 dark:text-amber-400" numberOfLines={1}>{d.filename}</Text>
                         <Text className={`text-sm font-medium ml-3 ${days <= 7 ? 'text-red-500' : 'text-amber-600 dark:text-amber-400'}`}>
-                          {days <= 0 ? 'Expirée' : `${days}j`}
+                          {days <= 0 ? t('coffre.expired') : `${days}j`}
                         </Text>
                       </View>
                     );
@@ -449,11 +442,11 @@ export default function ItemPassportScreen() {
                 <View className="flex-row items-center gap-3">
                   <FileCheck color={colors.gold} size={22} />
                   <View>
-                    <Text className="font-semibold text-ink dark:text-bone">Certificat & documents</Text>
+                    <Text className="font-semibold text-ink dark:text-bone">{t('item.docsSection')}</Text>
                     <Text className="mt-0.5 text-xs text-ink-mute dark:text-bone-soft">
                       {docs?.length
-                        ? `${docs.length} document${docs.length > 1 ? 's' : ''}`
-                        : "Factures, garantie, certificat d'authenticité"}
+                        ? `${docs.length} ${t('coffre.document', { count: docs.length })}`
+                        : t('item.docsSubtitle')}
                     </Text>
                   </View>
                 </View>
@@ -465,7 +458,7 @@ export default function ItemPassportScreen() {
               {docsExpanded && (
                 <View className="border-t border-gray-200 dark:border-ink-mute px-4 pb-4 pt-1">
                   {!docs?.length ? (
-                    <Text className="py-3 text-sm text-ink-mute dark:text-bone-soft">Aucun document pour cet objet.</Text>
+                    <Text className="py-3 text-sm text-ink-mute dark:text-bone-soft">{t('item.noDocs')}</Text>
                   ) : (
                     docs.map((doc) => (
                       <CompactDocRow key={doc.id} doc={doc} onMenuOpen={setMenuDoc} />
@@ -475,7 +468,7 @@ export default function ItemPassportScreen() {
                     onPress={() => router.push({ pathname: '/(tabs)/coffre', params: { itemId: id } })}
                     className="mt-3 items-center"
                   >
-                    <Text className="text-xs text-gold">Gérer dans le coffre →</Text>
+                    <Text className="text-xs text-gold">{t('item.manageInVault')}</Text>
                   </Pressable>
                 </View>
               )}
@@ -497,7 +490,7 @@ export default function ItemPassportScreen() {
                 : (
                   <>
                     <FileDown color={colors.ink} size={18} />
-                    <Text className="font-semibold text-ink">Exporter le passeport PDF</Text>
+                    <Text className="font-semibold text-ink">{t('item.exportPdf')}</Text>
                   </>
                 )}
             </Pressable>
@@ -507,7 +500,7 @@ export default function ItemPassportScreen() {
               className="flex-row items-center justify-center gap-2 rounded-xl border border-gold py-4 active:opacity-70"
             >
               <Lock color={colors.gold} size={16} />
-              <Text className="font-semibold text-gold">Passeport PDF — Premium</Text>
+              <Text className="font-semibold text-gold">{t('item.pdfPremiumTitle')}</Text>
             </Pressable>
           )}
         </View>

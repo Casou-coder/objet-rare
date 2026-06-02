@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Objet Rare",
-    "slug": "objet-rare",
+    "name": "OR Vault",
+    "slug": "or-vault",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "scheme": "objetrare",
+    "scheme": "orvault",
     "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/splash.png",
@@ -17,22 +17,23 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.clementdupas.objetrare"
+      "bundleIdentifier": "app.orvault"
     },
     "android": {
-      "package": "com.clementdupas.objetrare",
+      "package": "app.orvault",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0B0B0F"
       },
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",
         "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.POST_NOTIFICATIONS"
+        "android.permission.POST_NOTIFICATIONS",
+        "com.google.android.gms.permission.AD_ID"
       ]
     },
     "web": {
@@ -45,15 +46,15 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "L'app a besoin d'accéder à vos photos pour ajouter des images à vos objets et documents.",
-          "cameraPermission": "L'app a besoin d'accéder à votre caméra pour photographier vos objets."
+          "photosPermission": "OR Vault needs access to your photos to add images to your items and documents.",
+          "cameraPermission": "OR Vault needs access to your camera to photograph your items."
         }
       ],
       "expo-font",
       [
         "expo-tracking-transparency",
         {
-          "userTrackingPermission": "Des données anonymes et agrégées nous aident à améliorer l'application. Aucune donnée personnelle n'est collectée ni revendue."
+          "userTrackingPermission": "Anonymous and aggregated data helps us improve the app. No personal data is collected or sold."
         }
       ],
       [
@@ -65,9 +66,10 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Objet Rare utilise Face ID pour protéger l'accès à ta collection et tes documents."
+          "faceIDPermission": "OR Vault uses Face ID to protect access to your collection and documents."
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true
@@ -75,7 +77,16 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "82f93d09-0586-491a-8913-a0a9dced9029"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/82f93d09-0586-491a-8913-a0a9dced9029"
     }
   }
 }

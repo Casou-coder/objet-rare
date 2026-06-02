@@ -1,8 +1,10 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { setLanguage, type Language } from '@/lib/i18n';
 
 export type Theme    = 'system' | 'light' | 'dark';
 export type Currency = 'EUR' | 'USD' | 'GBP' | 'CHF';
+export type { Language };
 
 export const CURRENCY_SYMBOL: Record<Currency, string> = {
   EUR: '€', USD: '$', GBP: '£', CHF: 'CHF',
@@ -13,6 +15,8 @@ interface PreferencesState {
   statsPrivate: boolean;
   currency: Currency;
   compactValues: boolean;
+  language: Language | null;
+  hydrated: boolean;
   // Profile
   firstName: string;
   lastName: string;
@@ -23,6 +27,7 @@ interface PreferencesState {
   setStatsPrivate: (v: boolean) => void;
   setCurrency: (c: Currency) => void;
   setCompactValues: (v: boolean) => void;
+  setLanguage: (l: Language) => void;
   setProfile: (p: { firstName: string; lastName: string; bio: string; collectionPrefs: string[]; customCollection: string }) => void;
 }
 
@@ -31,6 +36,8 @@ export const usePreferences = create<PreferencesState>((set) => ({
   statsPrivate: false,
   currency: 'EUR',
   compactValues: false,
+  language: null,
+  hydrated: false,
   firstName: '',
   lastName: '',
   bio: '',
@@ -53,6 +60,11 @@ export const usePreferences = create<PreferencesState>((set) => ({
     set({ compactValues });
     AsyncStorage.setItem('@compact_values', compactValues ? '1' : '0');
   },
+  setLanguage: (language) => {
+    set({ language });
+    setLanguage(language);
+    AsyncStorage.setItem('@language', language);
+  },
   setProfile: (p) => {
     set(p);
     AsyncStorage.multiSet([
@@ -67,17 +79,21 @@ export const usePreferences = create<PreferencesState>((set) => ({
 
 // Hydrate from storage before first render
 AsyncStorage.multiGet([
-  '@theme', '@stats_private', '@currency', '@compact_values',
+  '@theme', '@stats_private', '@currency', '@compact_values', '@language',
   '@profile_first', '@profile_last', '@profile_bio', '@profile_prefs', '@profile_custom',
 ]).then((pairs) => {
   const m = Object.fromEntries(pairs.map(([k, v]) => [k, v]));
   let collectionPrefs: string[] = [];
   try { collectionPrefs = JSON.parse(m['@profile_prefs'] ?? '[]'); } catch {}
+  const language = (m['@language'] as Language | null) ?? null;
+  if (language) setLanguage(language);
   usePreferences.setState({
     theme:            (m['@theme'] as Theme | null)       ?? 'system',
     statsPrivate:     m['@stats_private'] === '1',
     currency:         (m['@currency'] as Currency | null) ?? 'EUR',
     compactValues:    m['@compact_values'] === '1',
+    language,
+    hydrated:         true,
     firstName:        m['@profile_first']  ?? '',
     lastName:         m['@profile_last']   ?? '',
     bio:              m['@profile_bio']    ?? '',
@@ -85,5 +101,5 @@ AsyncStorage.multiGet([
     customCollection: m['@profile_custom'] ?? '',
   });
 }).catch(() => {
-  // Storage unavailable — keep default values
+  usePreferences.setState({ hydrated: true });
 });

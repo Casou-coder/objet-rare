@@ -1,18 +1,7 @@
 import * as Print from 'expo-print';
-import { categoryLabel, conditionLabel } from './labels';
+import { i18n } from './i18n';
 import { getSignedPhotoUrl } from './photos';
 import type { Item } from '@/types/database';
-
-const movementLabel: Record<string, string> = {
-  automatic: 'Automatique', manual: 'Manuel', quartz: 'Quartz', other: 'Autre',
-};
-const hardwareLabel: Record<string, string> = {
-  gold: 'Or', silver: 'Argent', rose_gold: 'Or rose', black: 'Noir', other: 'Autre',
-};
-const metalLabel: Record<string, string> = {
-  gold: 'Or jaune', white_gold: 'Or blanc', rose_gold: 'Or rose',
-  silver: 'Argent', platinum: 'Platine', other: 'Autre',
-};
 
 function row(label: string, value: string | null | undefined): string {
   if (value == null || value === '') return '';
@@ -20,32 +9,47 @@ function row(label: string, value: string | null | undefined): string {
 }
 
 function metadataRows(item: Item): string {
+  const t = i18n.t.bind(i18n);
   const m = item.metadata as Record<string, unknown>;
   const parts: string[] = [];
 
+  const movementLabel: Record<string, string> = {
+    automatic: t('itemForm.automatic'), manual: t('itemForm.manual'),
+    quartz: t('itemForm.quartz'), other: t('common.other'),
+  };
+  const hardwareLabel: Record<string, string> = {
+    gold: t('itemForm.gold'), silver: t('itemForm.silver'),
+    rose_gold: t('itemForm.roseGold'), black: t('itemForm.black'), other: t('common.other'),
+  };
+  const metalLabel: Record<string, string> = {
+    gold: t('itemForm.goldYellow'), white_gold: t('itemForm.goldWhite'),
+    rose_gold: t('itemForm.roseGold'), silver: t('itemForm.silver'),
+    platinum: t('itemForm.platinum'), other: t('common.other'),
+  };
+
   switch (item.category) {
     case 'watch':
-      if (m.movement) parts.push(row('Mouvement', movementLabel[m.movement as string] ?? String(m.movement)));
-      if (m.reference) parts.push(row('Référence', String(m.reference)));
-      if (m.year) parts.push(row('Année', String(m.year)));
-      if (m.case_size_mm) parts.push(row('Diamètre', `${m.case_size_mm} mm`));
+      if (m.movement) parts.push(row(t('itemForm.movement'), movementLabel[m.movement as string] ?? String(m.movement)));
+      if (m.reference) parts.push(row(t('item.reference'), String(m.reference)));
+      if (m.year) parts.push(row(t('itemForm.year'), String(m.year)));
+      if (m.case_size_mm) parts.push(row(t('itemForm.diameter'), `${m.case_size_mm} mm`));
       break;
     case 'handbag':
-      if (m.material) parts.push(row('Matière', String(m.material)));
-      if (m.color) parts.push(row('Couleur', String(m.color)));
-      if (m.size) parts.push(row('Taille', String(m.size)));
-      if (m.hardware_color) parts.push(row('Quincaillerie', hardwareLabel[m.hardware_color as string] ?? String(m.hardware_color)));
+      if (m.material) parts.push(row(t('itemForm.material'), String(m.material)));
+      if (m.color) parts.push(row(t('itemForm.color'), String(m.color)));
+      if (m.size) parts.push(row(t('itemForm.size'), String(m.size)));
+      if (m.hardware_color) parts.push(row(t('itemForm.hardware'), hardwareLabel[m.hardware_color as string] ?? String(m.hardware_color)));
       break;
     case 'sneaker':
-      if (m.size_eu) parts.push(row('Pointure EU', String(m.size_eu)));
-      if (m.colorway) parts.push(row('Colorway', String(m.colorway)));
-      if (m.release_year) parts.push(row('Année', String(m.release_year)));
+      if (m.size_eu) parts.push(row(t('itemForm.euSize'), String(m.size_eu)));
+      if (m.colorway) parts.push(row(t('itemForm.colorway'), String(m.colorway)));
+      if (m.release_year) parts.push(row(t('itemForm.year'), String(m.release_year)));
       break;
     case 'jewelry':
-      if (m.metal) parts.push(row('Métal', metalLabel[m.metal as string] ?? String(m.metal)));
-      if (m.material) parts.push(row('Matière / Alliage', String(m.material)));
-      if (m.stone) parts.push(row('Pierre(s)', String(m.stone)));
-      if (m.weight_g) parts.push(row('Poids', `${m.weight_g} g`));
+      if (m.metal) parts.push(row(t('itemForm.metal'), metalLabel[m.metal as string] ?? String(m.metal)));
+      if (m.material) parts.push(row(t('itemForm.alloy'), String(m.material)));
+      if (m.stone) parts.push(row(t('itemForm.stones'), String(m.stone)));
+      if (m.weight_g) parts.push(row(t('itemForm.weight'), `${m.weight_g} g`));
       break;
   }
 
@@ -53,19 +57,23 @@ function metadataRows(item: Item): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString('fr-FR', {
+  const locale = i18n.language === 'fr' ? 'fr-FR' : 'en-US';
+  return new Date(`${iso}T00:00:00`).toLocaleDateString(locale, {
     day: 'numeric', month: 'long', year: 'numeric',
   });
 }
 
 export async function generatePassportPdf(item: Item): Promise<string> {
+  const t = i18n.t.bind(i18n);
   const metaHtml = metadataRows(item);
   const hasAcquisition = item.purchase_date || item.purchase_price != null;
-  const generatedAt = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const locale = i18n.language === 'fr' ? 'fr-FR' : 'en-US';
+  const generatedAt = new Date().toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
   const coverUrl = item.cover_photo_url ? await getSignedPhotoUrl(item.cover_photo_url) : null;
+  const lang = i18n.language === 'fr' ? 'fr' : 'en';
 
   const html = `<!DOCTYPE html>
-<html lang="fr">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8" />
   <style>
@@ -124,9 +132,9 @@ export async function generatePassportPdf(item: Item): Promise<string> {
   <div class="header">
     <div>
       <div class="brand">Objet Rare</div>
-      <div class="tagline">Passeport produit</div>
+      <div class="tagline">${t('item.passportTitle')}</div>
     </div>
-    <div class="gen-date">Généré le<br>${generatedAt}</div>
+    <div class="gen-date">${t('item.generatedOn')}<br>${generatedAt}</div>
   </div>
 
   ${coverUrl
@@ -134,42 +142,42 @@ export async function generatePassportPdf(item: Item): Promise<string> {
     : `<div class="cover-placeholder"></div>`}
 
   <div class="content">
-    <div class="category">${categoryLabel[item.category] ?? item.category}</div>
+    <div class="category">${t(`item.categories.${item.category}`, { defaultValue: item.category })}</div>
     <div class="item-name">${item.name}</div>
     <div class="item-brand">${item.brand}</div>
 
     <div class="section">
-      <div class="section-title">Identité</div>
+      <div class="section-title">${t('item.identity')}</div>
       <table>
-        ${row('Marque', item.brand)}
-        ${row('Modèle', item.model)}
-        ${row('Référence', item.serial_number)}
-        ${row('État', conditionLabel[item.condition] ?? item.condition)}
+        ${row(t('item.brand'), item.brand)}
+        ${row(t('item.model'), item.model)}
+        ${row(t('item.reference'), item.serial_number)}
+        ${row(t('item.condition'), t(`item.conditionValues.${item.condition}`, { defaultValue: item.condition }))}
         <tr>
-          <td class="label">Authenticité</td>
-          <td class="value ${item.is_authenticated ? 'auth' : ''}">${item.is_authenticated ? 'Authentifié ✓' : 'Non vérifié'}</td>
+          <td class="label">${t('item.authenticity')}</td>
+          <td class="value ${item.is_authenticated ? 'auth' : ''}">${item.is_authenticated ? t('item.authenticated') : t('item.notVerified')}</td>
         </tr>
       </table>
     </div>
 
     ${hasAcquisition ? `
     <div class="section">
-      <div class="section-title">Acquisition</div>
+      <div class="section-title">${t('item.acquisition')}</div>
       <table>
-        ${item.purchase_date ? row("Date d'achat", formatDate(item.purchase_date)) : ''}
-        ${item.purchase_price != null ? row('Prix payé', `${item.purchase_price.toLocaleString('fr-FR')} ${item.purchase_currency ?? 'EUR'}`) : ''}
+        ${item.purchase_date ? row(t('item.purchaseDate'), formatDate(item.purchase_date)) : ''}
+        ${item.purchase_price != null ? row(t('item.purchasePrice'), `${item.purchase_price.toLocaleString(locale)} ${item.purchase_currency ?? 'EUR'}`) : ''}
       </table>
     </div>` : ''}
 
     ${metaHtml ? `
     <div class="section">
-      <div class="section-title">Caractéristiques</div>
+      <div class="section-title">${t('itemForm.sectionCharacteristics')}</div>
       <table>${metaHtml}</table>
     </div>` : ''}
 
     <div class="footer">
-      <span>Objet Rare — Collection privée</span>
-      <span>Réf. ${item.id.substring(0, 8).toUpperCase()}</span>
+      <span>Objet Rare — ${t('item.privateCollection')}</span>
+      <span>${t('item.refAbbr')} ${item.id.substring(0, 8).toUpperCase()}</span>
     </div>
   </div>
 </body>

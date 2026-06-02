@@ -5,34 +5,17 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { itemSchema, type ItemFormValues } from './schemas';
-import { categoryLabel, conditionLabel } from '@/lib/labels';
 import { SelectModal } from '@/lib/SelectModal';
 import { DatePickerField } from '@/lib/DatePickerField';
 import { colors } from '@/lib/theme';
 import type { ItemCategory, ItemCondition } from '@/types/database';
 
 const CONDITIONS: ItemCondition[] = ['mint', 'excellent', 'good', 'fair', 'poor'];
-const CURRENCY_OPTIONS = [
-  { value: 'EUR' as const, label: '€ Euro',            short: '€ EUR' },
-  { value: 'USD' as const, label: '$ Dollar américain', short: '$ USD' },
-  { value: 'GBP' as const, label: '£ Livre sterling',   short: '£ GBP' },
-  { value: 'CHF' as const, label: 'CHF Franc suisse',   short: 'CHF'   },
-];
 const MOVEMENTS = ['automatic', 'manual', 'quartz', 'other'] as const;
 const HARDWARE  = ['gold', 'silver', 'rose_gold', 'black', 'other'] as const;
 const METALS    = ['gold', 'white_gold', 'rose_gold', 'silver', 'platinum', 'other'] as const;
-
-const movementLabel: Record<string, string> = {
-  automatic: 'Automatique', manual: 'Manuel', quartz: 'Quartz', other: 'Autre',
-};
-const hardwareLabel: Record<string, string> = {
-  gold: 'Or', silver: 'Argent', rose_gold: 'Or rose', black: 'Noir', other: 'Autre',
-};
-const metalLabel: Record<string, string> = {
-  gold: 'Or jaune', white_gold: 'Or blanc', rose_gold: 'Or rose',
-  silver: 'Argent', platinum: 'Platine', other: 'Autre',
-};
 
 function Label({ text, required }: { text: string; required?: boolean }) {
   return (
@@ -99,7 +82,8 @@ interface Props {
   onRegisterSubmit?: (fn: () => void) => void;
 }
 
-export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'Enregistrer', onDirtyChange, onRegisterSubmit }: Props) {
+export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel, onDirtyChange, onRegisterSubmit }: Props) {
+  const { t } = useTranslation();
   const category = defaultValues.category as ItemCategory;
 
   const { control, handleSubmit, formState: { errors, isDirty } } = useForm<ItemFormValues>({
@@ -110,35 +94,74 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
   useEffect(() => { onDirtyChange?.(isDirty); }, [isDirty, onDirtyChange]);
   useEffect(() => { onRegisterSubmit?.(handleSubmit(onSubmit)); }, [onRegisterSubmit, handleSubmit, onSubmit]);
 
+  const movementLabel: Record<string, string> = {
+    automatic: t('itemForm.automatic'),
+    manual: t('itemForm.manual'),
+    quartz: t('itemForm.quartz'),
+    other: t('common.other'),
+  };
+
+  const hardwareLabel: Record<string, string> = {
+    gold: t('itemForm.gold'),
+    silver: t('itemForm.silver'),
+    rose_gold: t('itemForm.roseGold'),
+    black: t('itemForm.black'),
+    other: t('common.other'),
+  };
+
+  const metalLabel: Record<string, string> = {
+    gold: t('itemForm.goldYellow'),
+    white_gold: t('itemForm.goldWhite'),
+    rose_gold: t('itemForm.roseGold'),
+    silver: t('itemForm.silver'),
+    platinum: t('itemForm.platinum'),
+    other: t('common.other'),
+  };
+
+  const conditionLabel: Record<string, string> = {
+    mint: t('item.conditionValues.mint'),
+    excellent: t('item.conditionValues.excellent'),
+    good: t('item.conditionValues.good'),
+    fair: t('item.conditionValues.fair'),
+    poor: t('item.conditionValues.poor'),
+  };
+
+  const CURRENCY_OPTIONS = [
+    { value: 'EUR' as const, label: t('account.currencies.EUR'), short: '€ EUR' },
+    { value: 'USD' as const, label: t('account.currencies.USD'), short: '$ USD' },
+    { value: 'GBP' as const, label: t('account.currencies.GBP'), short: '£ GBP' },
+    { value: 'CHF' as const, label: t('account.currencies.CHF'), short: 'CHF'   },
+  ];
+
   return (
     <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerClassName="px-6 pb-32" keyboardShouldPersistTaps="handled">
 
-        <SectionTitle title="L'objet" />
+        <SectionTitle title={t('itemForm.sectionItem')} />
 
         <FieldWrap error={errors.name?.message}>
-          <Label text="Nom" required />
+          <Label text={t('itemForm.name')} required />
           <Controller control={control} name="name" render={({ field: { onChange, value } }) => (
             <StyledInput placeholder="Ex : Rolex Daytona" onChangeText={onChange} value={value} />
           )} />
         </FieldWrap>
 
         <FieldWrap error={errors.brand?.message}>
-          <Label text="Marque" required />
+          <Label text={t('itemForm.brand')} required />
           <Controller control={control} name="brand" render={({ field: { onChange, value } }) => (
             <StyledInput placeholder="Ex : Rolex" onChangeText={onChange} value={value} />
           )} />
         </FieldWrap>
 
         <FieldWrap error={errors.model?.message}>
-          <Label text="Modèle" />
+          <Label text={t('itemForm.model')} />
           <Controller control={control} name="model" render={({ field: { onChange, value } }) => (
             <StyledInput placeholder="Ex : Cosmograph Daytona" onChangeText={onChange} value={value ?? ''} />
           )} />
         </FieldWrap>
 
         <FieldWrap error={errors.serial_number?.message}>
-          <Label text="Numéro de série" />
+          <Label text={t('itemForm.serialNumber')} />
           <Controller control={control} name="serial_number" render={({ field: { onChange, value } }) => (
             <StyledInput placeholder="Ex : 116500LN" onChangeText={onChange} value={value ?? ''} />
           )} />
@@ -147,9 +170,9 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
         {/* Watch */}
         {category === 'watch' && (
           <>
-            <SectionTitle title="Caractéristiques" />
+            <SectionTitle title={t('itemForm.sectionCharacteristics')} />
             <FieldWrap>
-              <Label text="Mouvement" />
+              <Label text={t('itemForm.movement')} />
               <Controller control={control} name="metadata.movement" render={({ field: { onChange, value } }) => (
                 <Chips options={MOVEMENTS} value={value as string} onChange={onChange} labelMap={movementLabel} />
               )} />
@@ -157,7 +180,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Référence modèle" />
+                  <Label text={t('itemForm.modelRef')} />
                   <Controller control={control} name="metadata.reference" render={({ field: { onChange, value } }) => (
                     <StyledInput placeholder="116500LN" onChangeText={onChange} value={value as string ?? ''} />
                   )} />
@@ -165,17 +188,17 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
               </View>
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Année" />
+                  <Label text={t('itemForm.year')} />
                   <Controller control={control} name="metadata.year" render={({ field: { onChange, value } }) => (
-                    <StyledInput placeholder="2022" keyboardType="numeric" onChangeText={(t) => onChange(t ? parseInt(t) : undefined)} value={value ? String(value) : ''} />
+                    <StyledInput placeholder="2022" keyboardType="numeric" onChangeText={(v) => onChange(v ? parseInt(v) : undefined)} value={value ? String(value) : ''} />
                   )} />
                 </FieldWrap>
               </View>
             </View>
             <FieldWrap>
-              <Label text="Diamètre (mm)" />
+              <Label text={t('itemForm.diameter')} />
               <Controller control={control} name="metadata.case_size_mm" render={({ field: { onChange, value } }) => (
-                <StyledInput placeholder="40" keyboardType="numeric" onChangeText={(t) => onChange(t ? parseFloat(t) : undefined)} value={value ? String(value) : ''} />
+                <StyledInput placeholder="40" keyboardType="numeric" onChangeText={(v) => onChange(v ? parseFloat(v) : undefined)} value={value ? String(value) : ''} />
               )} />
             </FieldWrap>
           </>
@@ -184,9 +207,9 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
         {/* Handbag */}
         {category === 'handbag' && (
           <>
-            <SectionTitle title="Caractéristiques" />
+            <SectionTitle title={t('itemForm.sectionCharacteristics')} />
             <FieldWrap>
-              <Label text="Matière" />
+              <Label text={t('itemForm.material')} />
               <Controller control={control} name="metadata.material" render={({ field: { onChange, value } }) => (
                 <StyledInput placeholder="Ex : Togo, Epsom, Caviar…" onChangeText={onChange} value={value as string ?? ''} />
               )} />
@@ -194,7 +217,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Couleur" />
+                  <Label text={t('itemForm.color')} />
                   <Controller control={control} name="metadata.color" render={({ field: { onChange, value } }) => (
                     <StyledInput placeholder="Ex : Noir" onChangeText={onChange} value={value as string ?? ''} />
                   )} />
@@ -202,7 +225,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
               </View>
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Taille" />
+                  <Label text={t('itemForm.size')} />
                   <Controller control={control} name="metadata.size" render={({ field: { onChange, value } }) => (
                     <StyledInput placeholder="Ex : 25, 30…" onChangeText={onChange} value={value as string ?? ''} />
                   )} />
@@ -210,7 +233,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
               </View>
             </View>
             <FieldWrap>
-              <Label text="Quincaillerie" />
+              <Label text={t('itemForm.hardware')} />
               <Controller control={control} name="metadata.hardware_color" render={({ field: { onChange, value } }) => (
                 <Chips options={HARDWARE} value={value as string} onChange={onChange} labelMap={hardwareLabel} />
               )} />
@@ -221,27 +244,27 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
         {/* Sneaker */}
         {category === 'sneaker' && (
           <>
-            <SectionTitle title="Caractéristiques" />
+            <SectionTitle title={t('itemForm.sectionCharacteristics')} />
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Pointure EU" />
+                  <Label text={t('itemForm.euSize')} />
                   <Controller control={control} name="metadata.size_eu" render={({ field: { onChange, value } }) => (
-                    <StyledInput placeholder="42" keyboardType="numeric" onChangeText={(t) => onChange(t ? parseFloat(t) : undefined)} value={value ? String(value) : ''} />
+                    <StyledInput placeholder="42" keyboardType="numeric" onChangeText={(v) => onChange(v ? parseFloat(v) : undefined)} value={value ? String(value) : ''} />
                   )} />
                 </FieldWrap>
               </View>
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Année" />
+                  <Label text={t('itemForm.year')} />
                   <Controller control={control} name="metadata.release_year" render={({ field: { onChange, value } }) => (
-                    <StyledInput placeholder="2022" keyboardType="numeric" onChangeText={(t) => onChange(t ? parseInt(t) : undefined)} value={value ? String(value) : ''} />
+                    <StyledInput placeholder="2022" keyboardType="numeric" onChangeText={(v) => onChange(v ? parseInt(v) : undefined)} value={value ? String(value) : ''} />
                   )} />
                 </FieldWrap>
               </View>
             </View>
             <FieldWrap>
-              <Label text="Colorway" />
+              <Label text={t('itemForm.colorway')} />
               <Controller control={control} name="metadata.colorway" render={({ field: { onChange, value } }) => (
                 <StyledInput placeholder="Ex : Chicago / Black Toe" onChangeText={onChange} value={value as string ?? ''} />
               )} />
@@ -252,9 +275,9 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
         {/* Jewelry */}
         {category === 'jewelry' && (
           <>
-            <SectionTitle title="Caractéristiques" />
+            <SectionTitle title={t('itemForm.sectionCharacteristics')} />
             <FieldWrap>
-              <Label text="Métal" />
+              <Label text={t('itemForm.metal')} />
               <Controller control={control} name="metadata.metal" render={({ field: { onChange, value } }) => (
                 <Chips options={METALS} value={value as string} onChange={onChange} labelMap={metalLabel} />
               )} />
@@ -262,7 +285,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Matière / Alliage" />
+                  <Label text={t('itemForm.alloy')} />
                   <Controller control={control} name="metadata.material" render={({ field: { onChange, value } }) => (
                     <StyledInput placeholder="Ex : Or 18 carats" onChangeText={onChange} value={value as string ?? ''} />
                   )} />
@@ -270,15 +293,15 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
               </View>
               <View className="flex-1">
                 <FieldWrap>
-                  <Label text="Poids (g)" />
+                  <Label text={t('itemForm.weight')} />
                   <Controller control={control} name="metadata.weight_g" render={({ field: { onChange, value } }) => (
-                    <StyledInput placeholder="5.2" keyboardType="decimal-pad" onChangeText={(t) => onChange(t ? parseFloat(t) : undefined)} value={value ? String(value) : ''} />
+                    <StyledInput placeholder="5.2" keyboardType="decimal-pad" onChangeText={(v) => onChange(v ? parseFloat(v) : undefined)} value={value ? String(value) : ''} />
                   )} />
                 </FieldWrap>
               </View>
             </View>
             <FieldWrap>
-              <Label text="Pierre(s)" />
+              <Label text={t('itemForm.stones')} />
               <Controller control={control} name="metadata.stone" render={({ field: { onChange, value } }) => (
                 <StyledInput placeholder="Ex : Diamant 0,5 ct, Rubis" onChangeText={onChange} value={value as string ?? ''} />
               )} />
@@ -286,21 +309,21 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
           </>
         )}
 
-        <SectionTitle title="Achat" />
+        <SectionTitle title={t('itemForm.sectionPurchase')} />
 
         <FieldWrap error={errors.purchase_date?.message}>
-          <Label text="Date d'achat" />
+          <Label text={t('itemForm.purchaseDate')} />
           <Controller control={control} name="purchase_date" render={({ field: { onChange, value } }) => (
             <DatePickerField value={value} onChange={onChange} />
           )} />
         </FieldWrap>
 
         <View className="mb-4">
-          <Label text="Prix payé" />
+          <Label text={t('itemForm.purchasePrice')} />
           <View className="flex-row gap-2">
             <View className="flex-1">
               <Controller control={control} name="purchase_price" render={({ field: { onChange, value } }) => (
-                <StyledInput placeholder="12 000" keyboardType="decimal-pad" onChangeText={(t) => onChange(t ? parseFloat(t) : undefined)} value={value != null ? String(value) : ''} />
+                <StyledInput placeholder="12 000" keyboardType="decimal-pad" onChangeText={(v) => onChange(v ? parseFloat(v) : undefined)} value={value != null ? String(value) : ''} />
               )} />
             </View>
             <View className="w-24">
@@ -309,7 +332,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
                   value={value}
                   options={CURRENCY_OPTIONS}
                   onChange={onChange}
-                  title="Devise d'achat"
+                  title={t('itemForm.purchaseCurrency')}
                   triggerLabel={CURRENCY_OPTIONS.find((o) => o.value === value)?.short}
                 />
               )} />
@@ -320,7 +343,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
           ) : null}
         </View>
 
-        <SectionTitle title="État" />
+        <SectionTitle title={t('itemForm.sectionCondition')} />
 
         <FieldWrap error={errors.condition?.message}>
           <Controller control={control} name="condition" render={({ field: { onChange, value } }) => (
@@ -330,9 +353,9 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
 
         <View className="mb-4 flex-row items-center justify-between rounded-xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft px-4 py-3">
           <View className="flex-1 mr-3">
-            <Text className="text-sm font-medium text-ink dark:text-bone">Authenticité vérifiée</Text>
+            <Text className="text-sm font-medium text-ink dark:text-bone">{t('itemForm.authenticityVerified')}</Text>
             <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
-              Certificat, facture ou expertise confirmant l'origine
+              {t('itemForm.authenticityHint')}
             </Text>
           </View>
           <Controller control={control} name="is_authenticated" render={({ field: { onChange, value } }) => (
@@ -356,7 +379,7 @@ export function ItemForm({ defaultValues, onSubmit, isPending, submitLabel = 'En
         >
           {isPending
             ? <ActivityIndicator color={colors.ink} />
-            : <Text className="font-semibold text-ink">{submitLabel}</Text>}
+            : <Text className="font-semibold text-ink">{submitLabel ?? t('itemForm.save')}</Text>}
         </Pressable>
       </View>
     </KeyboardAvoidingView>

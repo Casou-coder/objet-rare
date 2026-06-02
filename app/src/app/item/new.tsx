@@ -2,19 +2,21 @@ import { useState, useEffect } from 'react';
 import { View, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack, router, useNavigation } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { ItemForm } from '@/features/items/ItemForm';
 import { useCreateItem } from '@/features/items/hooks';
-import { categoryLabel } from '@/lib/labels';
 import { useBackHeader } from '@/lib/useBackHeader';
 import { haptic } from '@/lib/haptics';
 import type { ItemCategory } from '@/types/database';
 import type { ItemFormValues } from '@/features/items/schemas';
 
 export default function NewItemScreen() {
+  const { t } = useTranslation();
   const { category } = useLocalSearchParams<{ category: ItemCategory }>();
   const { mutateAsync: createItem, isPending } = useCreateItem();
   const navigation = useNavigation();
-  const backHeader = useBackHeader(category ? `Nouveau — ${categoryLabel[category]}` : 'Nouvel objet');
+  const title = category ? t('item.newTitleCategory', { category: t(`item.categories.${category}`) }) : t('item.newTitle');
+  const backHeader = useBackHeader(title);
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
@@ -22,16 +24,16 @@ export default function NewItemScreen() {
       if (!isDirty) return;
       e.preventDefault();
       Alert.alert(
-        'Abandonner ?',
-        'Les informations saisies seront perdues.',
+        t('item.discardTitle'),
+        t('item.discardMsg'),
         [
-          { text: 'Continuer à éditer', style: 'cancel' },
-          { text: 'Abandonner', style: 'destructive', onPress: () => (navigation as any).dispatch(e.data.action) },
+          { text: t('item.keepEditing'), style: 'cancel' },
+          { text: t('item.discard'), style: 'destructive', onPress: () => (navigation as any).dispatch(e.data.action) },
         ],
       );
     });
     return unsubscribe;
-  }, [navigation, isDirty]);
+  }, [navigation, isDirty, t]);
 
   const defaultValues: ItemFormValues = {
     category: category ?? 'other',
@@ -51,7 +53,7 @@ export default function NewItemScreen() {
       router.replace(`/item/${item.id}`);
     } catch (e: any) {
       haptic.error();
-      Alert.alert('Erreur', e.message ?? "Impossible de créer l'objet.");
+      Alert.alert(t('common.error'), e.message ?? t('item.createError'));
     }
   };
 
@@ -62,7 +64,7 @@ export default function NewItemScreen() {
         defaultValues={defaultValues}
         onSubmit={onSubmit}
         isPending={isPending}
-        submitLabel="Enregistrer l'objet"
+        submitLabel={t('item.saveItem')}
         onDirtyChange={setIsDirty}
       />
     </SafeAreaView>

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { View, Text, Pressable, FlatList, Dimensions, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import {
   BookOpen, Archive, Shield, ScanLine, Eye, Crown, CheckCircle, XCircle, Clock,
 } from 'lucide-react-native';
@@ -37,64 +38,66 @@ function OcrRow({
   );
 }
 
-const SLIDES: Slide[] = [
-  {
-    icon: BookOpen,
-    title: 'Catalogue\nta collection',
-    body: "Ajoute tes montres, sacs, sneakers, bijoux et plus. Pour chaque objet : photo personnelle, marque, état, prix d'achat et les caractéristiques propres à sa catégorie (mouvement, matière, pointure…).",
-  },
-  {
-    icon: Shield,
-    title: 'Le passeport\nproduit',
-    body: "Chaque objet dispose d'une fiche complète qui centralise son identité, ses infos d'achat et tous ses documents liés.\n\nModifie ou supprime l'objet depuis les icônes en haut à droite. Ajoute une photo en appuyant sur l'icône appareil photo.",
-  },
-  {
-    icon: Archive,
-    title: 'Le Coffre\nde documents',
-    body: "Stocke ici factures, certificats d'authenticité et garanties. Chaque document peut être rattaché à un objet de ta collection.\n\nL'OCR analyse automatiquement le contenu de chaque fichier pour l'indexer.",
-  },
-  {
-    icon: ScanLine,
-    title: 'Les statuts\nde traitement OCR',
-    body: "Quand tu uploades un document, l'OCR en extrait le texte automatiquement. Trois statuts possibles :",
-    detail: (
-      <View className="mt-4 w-full rounded-xl bg-gold/5 border border-gold/20 px-4 py-3">
-        <OcrRow
-          icon={Clock}
-          color="#D97706"
-          label="En cours"
-          description="Le fichier vient d'être uploadé. L'extraction est en cours de traitement — cela prend généralement quelques secondes."
-        />
-        <OcrRow
-          icon={CheckCircle}
-          color={colors.gold}
-          label="Extrait"
-          description="Le texte a été extrait avec succès. Le document est pleinement indexé et consultable."
-        />
-        <OcrRow
-          icon={XCircle}
-          color="#EF4444"
-          label="Échec"
-          description="L'extraction a échoué — image trop floue, format non supporté ou fichier corrompu. Le document reste accessible mais son contenu n'est pas indexé."
-        />
-      </View>
-    ),
-  },
-  {
-    icon: Eye,
-    title: 'Mode privé',
-    body: "Appuie sur l'icône œil dans l'onglet Collection pour masquer la valeur totale et le nombre d'objets.\n\nUtile en déplacement, en présence de tiers, ou simplement pour préserver ta confidentialité.",
-  },
-  {
-    icon: Crown,
-    title: 'Premium',
-    body: "La version gratuite permet de cataloguer jusqu'à 3 objets.\n\nPremium débloque : collection illimitée, extraction OCR avancée sur tes documents et génération d'un passeport PDF par objet.",
-  },
-];
-
 export default function TutorialScreen() {
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
   const listRef = useRef<FlatList>(null);
+
+  const SLIDES: Slide[] = [
+    {
+      icon: BookOpen,
+      title: t('tutorial.slide1Title'),
+      body: t('tutorial.slide1Body'),
+    },
+    {
+      icon: Shield,
+      title: t('tutorial.slide2Title'),
+      body: t('tutorial.slide2Body'),
+    },
+    {
+      icon: Archive,
+      title: t('tutorial.slide3Title'),
+      body: t('tutorial.slide3Body'),
+    },
+    {
+      icon: ScanLine,
+      title: t('tutorial.slide4Title'),
+      body: t('tutorial.slide4Body'),
+      detail: (
+        <View className="mt-4 w-full rounded-xl bg-gold/5 border border-gold/20 px-4 py-3">
+          <OcrRow
+            icon={Clock}
+            color="#D97706"
+            label={t('tutorial.ocrPending')}
+            description={t('tutorial.ocrPendingDesc')}
+          />
+          <OcrRow
+            icon={CheckCircle}
+            color={colors.gold}
+            label={t('tutorial.ocrDone')}
+            description={t('tutorial.ocrDoneDesc')}
+          />
+          <OcrRow
+            icon={XCircle}
+            color="#EF4444"
+            label={t('tutorial.ocrFailed')}
+            description={t('tutorial.ocrFailedDesc')}
+          />
+        </View>
+      ),
+    },
+    {
+      icon: Eye,
+      title: t('tutorial.slide5Title'),
+      body: t('tutorial.slide5Body'),
+    },
+    {
+      icon: Crown,
+      title: t('tutorial.slide6Title'),
+      body: t('tutorial.slide6Body'),
+    },
+  ];
+
   const isLast = index === SLIDES.length - 1;
 
   const goNext = () => {
@@ -111,7 +114,7 @@ export default function TutorialScreen() {
       {/* Close button */}
       <View className="flex-row justify-end px-5 pt-2 pb-1">
         <Pressable onPress={() => router.back()} className="px-3 py-1.5 active:opacity-60">
-          <Text className="text-sm text-ink-mute dark:text-bone-soft">Fermer</Text>
+          <Text className="text-sm text-ink-mute dark:text-bone-soft">{t('common.close')}</Text>
         </Pressable>
       </View>
 
@@ -163,7 +166,7 @@ export default function TutorialScreen() {
       <View className="px-6 pb-4">
         <Pressable onPress={goNext} className="items-center rounded-xl bg-gold py-4 active:opacity-80">
           <Text className="font-semibold text-base text-ink">
-            {isLast ? 'Terminé' : 'Suivant'}
+            {isLast ? t('tutorial.done') : t('common.next')}
           </Text>
         </Pressable>
       </View>
