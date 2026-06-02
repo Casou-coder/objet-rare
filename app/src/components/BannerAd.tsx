@@ -1,10 +1,12 @@
 import { View, Text, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Crown } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { usePlan } from '@/features/premium/usePlan';
 import { colors } from '@/lib/theme';
 
 export function BannerAd() {
+  const { t } = useTranslation();
   const { isPremium } = usePlan();
 
   if (isPremium) return null;
@@ -19,13 +21,11 @@ export function BannerAd() {
           <Crown color={colors.gold} size={16} />
         </View>
         <View className="flex-1">
-          <Text className="text-xs font-semibold text-gold">Objet Rare Premium</Text>
-          <Text className="text-xs text-bone-soft mt-0.5">
-            Supprimez les pubs · Collection illimitée · OCR avancé
-          </Text>
+          <Text className="text-xs font-semibold text-gold">{t('banner.title')}</Text>
+          <Text className="text-xs text-bone-soft mt-0.5">{t('banner.desc')}</Text>
         </View>
         <View className="rounded-lg bg-gold px-3 py-1.5">
-          <Text className="text-[11px] font-bold text-ink">Voir</Text>
+          <Text className="text-[11px] font-bold text-ink">{t('banner.cta')}</Text>
         </View>
       </View>
     </Pressable>

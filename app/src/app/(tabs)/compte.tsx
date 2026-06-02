@@ -5,41 +5,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Crown, Package, Eye, Hash, Pencil, X, BookOpen, Shield, Mail } from 'lucide-react-native';
+import { Crown, Package, Eye, Hash, Pencil, X, BookOpen, Shield, Mail, Globe } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { BannerAd } from '@/components/BannerAd';
 import { useAuth } from '@/stores/auth';
 import { usePlan, FREE_LIMITS } from '@/features/premium/usePlan';
 import { deleteAccount } from '@/features/account/deleteAccount';
 import { queryClient } from '@/lib/query-client';
-import { usePreferences, CURRENCY_SYMBOL, type Theme, type Currency } from '@/stores/preferences';
+import { usePreferences, CURRENCY_SYMBOL, type Theme, type Currency, type Language } from '@/stores/preferences';
 import { maskEmail } from '@/lib/format';
 import { SelectModal } from '@/lib/SelectModal';
 import { colors } from '@/lib/theme';
-
-// ── Constants ─────────────────────────────────────────────────────────────────
-
-const THEMES: { key: Theme; label: string }[] = [
-  { key: 'system', label: 'Auto' },
-  { key: 'light',  label: 'Clair' },
-  { key: 'dark',   label: 'Sombre' },
-];
-
-const CURRENCY_OPTIONS: { value: Currency; label: string }[] = [
-  { value: 'EUR', label: '€ Euro' },
-  { value: 'USD', label: '$ Dollar américain' },
-  { value: 'GBP', label: '£ Livre sterling' },
-  { value: 'CHF', label: 'CHF Franc suisse' },
-];
-
-const COLLECTION_INTERESTS = [
-  { key: 'montres',      label: 'Montres' },
-  { key: 'voitures',     label: 'Voitures' },
-  { key: 'sneakers',     label: 'Sneakers' },
-  { key: 'maroquinerie', label: 'Maroquinerie' },
-  { key: 'bijoux',       label: 'Bijoux' },
-  { key: 'autres',       label: 'Autres' },
-];
-
 
 function SectionLabel({ title }: { title: string }) {
   return (
@@ -52,7 +28,17 @@ function SectionLabel({ title }: { title: string }) {
 // ── Profile modal ─────────────────────────────────────────────────────────────
 
 function ProfileModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
   const { firstName, lastName, bio, collectionPrefs, customCollection, setProfile } = usePreferences();
+
+  const COLLECTION_INTERESTS = [
+    { key: 'montres',      label: t('account.interests.watches') },
+    { key: 'voitures',     label: t('account.interests.cars') },
+    { key: 'sneakers',     label: t('account.interests.sneakers') },
+    { key: 'maroquinerie', label: t('account.interests.bags') },
+    { key: 'bijoux',       label: t('account.interests.jewelry') },
+    { key: 'autres',       label: t('account.interests.other') },
+  ];
 
   const [lFirst,  setLFirst]  = useState(firstName);
   const [lLast,   setLLast]   = useState(lastName);
@@ -60,7 +46,6 @@ function ProfileModal({ visible, onClose }: { visible: boolean; onClose: () => v
   const [lPrefs,  setLPrefs]  = useState(collectionPrefs);
   const [lCustom, setLCustom] = useState(customCollection);
 
-  // Re-sync local state when modal opens
   const handleShow = () => {
     setLFirst(firstName); setLLast(lastName); setLBio(bio);
     setLPrefs(collectionPrefs); setLCustom(customCollection);
@@ -96,35 +81,33 @@ function ProfileModal({ visible, onClose }: { visible: boolean; onClose: () => v
               contentContainerClassName="px-6 pb-10 pt-4"
               keyboardShouldPersistTaps="handled"
             >
-              {/* Handle */}
               <View className="mb-4 h-1 w-10 self-center rounded-full bg-gray-200 dark:bg-ink-mute" />
 
               <View className="mb-5 flex-row items-center justify-between">
-                <Text className="font-serif text-xl text-ink dark:text-bone">Mon profil</Text>
+                <Text className="font-serif text-xl text-ink dark:text-bone">{t('account.myProfile')}</Text>
                 <Pressable onPress={onClose} hitSlop={8} className="active:opacity-60">
                   <X color={colors.inkGray} size={20} />
                 </Pressable>
               </View>
 
-              {/* Prénom / Nom */}
               <View className="mb-3 flex-row gap-3">
                 <View className="flex-1">
-                  <Text className="mb-1.5 text-xs text-ink-mute dark:text-bone-soft">Prénom</Text>
+                  <Text className="mb-1.5 text-xs text-ink-mute dark:text-bone-soft">{t('account.firstName')}</Text>
                   <TextInput
                     value={lFirst}
                     onChangeText={setLFirst}
-                    placeholder="Optionnel"
+                    placeholder={t('common.optional')}
                     placeholderTextColor={colors.inkGray}
                     className={inputClass}
                     autoCapitalize="words"
                   />
                 </View>
                 <View className="flex-1">
-                  <Text className="mb-1.5 text-xs text-ink-mute dark:text-bone-soft">Nom</Text>
+                  <Text className="mb-1.5 text-xs text-ink-mute dark:text-bone-soft">{t('account.lastName')}</Text>
                   <TextInput
                     value={lLast}
                     onChangeText={setLLast}
-                    placeholder="Optionnel"
+                    placeholder={t('common.optional')}
                     placeholderTextColor={colors.inkGray}
                     className={inputClass}
                     autoCapitalize="words"
@@ -132,20 +115,18 @@ function ProfileModal({ visible, onClose }: { visible: boolean; onClose: () => v
                 </View>
               </View>
 
-              {/* Profil / bio */}
-              <Text className="mb-1.5 text-xs text-ink-mute dark:text-bone-soft">Profil</Text>
+              <Text className="mb-1.5 text-xs text-ink-mute dark:text-bone-soft">{t('account.profile')}</Text>
               <TextInput
                 value={lBio}
                 onChangeText={setLBio}
-                placeholder="Collectionneur passionné… (optionnel)"
+                placeholder={t('account.bioPlaceholder')}
                 placeholderTextColor={colors.inkGray}
                 className={`${inputClass} mb-4`}
                 multiline
                 numberOfLines={2}
               />
 
-              {/* Collections */}
-              <Text className="mb-2 text-xs text-ink-mute dark:text-bone-soft">Collections de préférence</Text>
+              <Text className="mb-2 text-xs text-ink-mute dark:text-bone-soft">{t('account.collectionPrefs')}</Text>
               <View className="mb-3 flex-row flex-wrap gap-2">
                 {COLLECTION_INTERESTS.map((i) => {
                   const active = lPrefs.includes(i.key);
@@ -169,14 +150,14 @@ function ProfileModal({ visible, onClose }: { visible: boolean; onClose: () => v
                 <TextInput
                   value={lCustom}
                   onChangeText={setLCustom}
-                  placeholder="Précise ta collection…"
+                  placeholder={t('account.customCollection')}
                   placeholderTextColor={colors.inkGray}
                   className={`${inputClass} mb-4`}
                 />
               )}
 
               <Pressable onPress={save} className="mt-2 items-center rounded-xl bg-gold py-4 active:opacity-80">
-                <Text className="font-semibold text-ink">Enregistrer</Text>
+                <Text className="font-semibold text-ink">{t('common.save')}</Text>
               </Pressable>
             </ScrollView>
           </View>
@@ -189,16 +170,50 @@ function ProfileModal({ visible, onClose }: { visible: boolean; onClose: () => v
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function CompteScreen() {
+  const { t } = useTranslation();
   const { user, signOut } = useAuth();
   const { isPremium, itemCount, canAddItem } = usePlan();
   const {
-    theme, statsPrivate, currency, compactValues,
+    theme, statsPrivate, currency, compactValues, language,
     firstName, lastName, bio, collectionPrefs, customCollection,
-    setTheme, setStatsPrivate, setCurrency, setCompactValues,
+    setTheme, setStatsPrivate, setCurrency, setCompactValues, setLanguage,
   } = usePreferences();
 
   const [profileVisible, setProfileVisible] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleSignOut = async () => {
+    await signOut();
+    queryClient.clear();
+    router.replace('/(auth)/login');
+  };
+
+  const THEMES: { key: Theme; label: string }[] = [
+    { key: 'system', label: t('account.themes.system') },
+    { key: 'light',  label: t('account.themes.light') },
+    { key: 'dark',   label: t('account.themes.dark') },
+  ];
+
+  const CURRENCY_OPTIONS: { value: Currency; label: string }[] = [
+    { value: 'EUR', label: t('account.currencies.EUR') },
+    { value: 'USD', label: t('account.currencies.USD') },
+    { value: 'GBP', label: t('account.currencies.GBP') },
+    { value: 'CHF', label: t('account.currencies.CHF') },
+  ];
+
+  const LANGUAGE_OPTIONS: { value: Language; label: string; flag: string }[] = [
+    { value: 'fr', label: 'Français', flag: '🇫🇷' },
+    { value: 'en', label: 'English',  flag: '🇺🇸' },
+  ];
+
+  const COLLECTION_INTERESTS = [
+    { key: 'montres',      label: t('account.interests.watches') },
+    { key: 'voitures',     label: t('account.interests.cars') },
+    { key: 'sneakers',     label: t('account.interests.sneakers') },
+    { key: 'maroquinerie', label: t('account.interests.bags') },
+    { key: 'bijoux',       label: t('account.interests.jewelry') },
+    { key: 'autres',       label: t('account.interests.other') },
+  ];
 
   const displayName = [firstName, lastName].filter(Boolean).join(' ');
   const activeInterests = [
@@ -206,19 +221,20 @@ export default function CompteScreen() {
     ...(collectionPrefs.includes('autres') && customCollection ? [customCollection] : []),
   ];
 
+  const selectedLang = LANGUAGE_OPTIONS.find((l) => l.value === language);
+
   return (
     <SafeAreaView className="flex-1 bg-bone dark:bg-ink" edges={['top']}>
       <ProfileModal visible={profileVisible} onClose={() => setProfileVisible(false)} />
 
       <ScrollView contentContainerClassName="px-6 pb-24">
 
-        {/* Header */}
         <View className="pt-2 pb-2">
-          <Text className="font-serif text-3xl text-ink dark:text-bone">Paramètres</Text>
+          <Text className="font-serif text-3xl text-ink dark:text-bone">{t('account.settings')}</Text>
         </View>
 
         {/* ── Mon profil ── */}
-        <SectionLabel title="Mon profil" />
+        <SectionLabel title={t('account.myProfile')} />
 
         <View className="rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4">
           <View className="flex-row items-start">
@@ -243,7 +259,7 @@ export default function CompteScreen() {
               )}
               {!displayName && !bio && activeInterests.length === 0 && (
                 <Text className="mt-1 text-sm text-ink-mute dark:text-bone-soft">
-                  Complète ton profil →
+                  {t('account.completeProfile')}
                 </Text>
               )}
             </View>
@@ -254,24 +270,24 @@ export default function CompteScreen() {
         </View>
 
         {/* ── Personnalisation ── */}
-        <SectionLabel title="Personnalisation" />
+        <SectionLabel title={t('account.personalization')} />
 
         <View className="rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft">
 
           {/* Apparence */}
           <View className="flex-row items-center gap-3 px-4 py-3.5 border-b border-gray-100 dark:border-ink-mute">
-            <Text className="flex-1 text-ink dark:text-bone">Apparence</Text>
+            <Text className="flex-1 text-ink dark:text-bone">{t('account.appearance')}</Text>
             <View className="flex-row gap-1.5">
-              {THEMES.map((t) => (
+              {THEMES.map((th) => (
                 <Pressable
-                  key={t.key}
-                  onPress={() => setTheme(t.key)}
+                  key={th.key}
+                  onPress={() => setTheme(th.key)}
                   className={`rounded-lg border px-3 py-1.5 active:opacity-70 ${
-                    theme === t.key ? 'border-gold bg-gold/10' : 'border-gray-200 dark:border-ink-mute'
+                    theme === th.key ? 'border-gold bg-gold/10' : 'border-gray-200 dark:border-ink-mute'
                   }`}
                 >
-                  <Text className={`text-xs ${theme === t.key ? 'text-gold' : 'text-ink-mute dark:text-bone-soft'}`}>
-                    {t.label}
+                  <Text className={`text-xs ${theme === th.key ? 'text-gold' : 'text-ink-mute dark:text-bone-soft'}`}>
+                    {th.label}
                   </Text>
                 </Pressable>
               ))}
@@ -282,9 +298,9 @@ export default function CompteScreen() {
           <View className="flex-row items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-ink-mute">
             <Eye color={colors.inkGray} size={18} />
             <View className="flex-1">
-              <Text className="text-ink dark:text-bone">Masquer les stats</Text>
+              <Text className="text-ink dark:text-bone">{t('account.hideStats')}</Text>
               <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
-                Cache le nombre d'objets et la valeur totale
+                {t('account.hideStatsDesc')}
               </Text>
             </View>
             <Switch
@@ -300,9 +316,9 @@ export default function CompteScreen() {
           <View className="flex-row items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-ink-mute">
             <Hash color={colors.inkGray} size={18} />
             <View className="flex-1">
-              <Text className="text-ink dark:text-bone">Valeurs compactes</Text>
+              <Text className="text-ink dark:text-bone">{t('account.compactValues')}</Text>
               <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
-                Affiche 1,2 M € au lieu du chiffre complet
+                {t('account.compactValuesDesc')}
               </Text>
             </View>
             <Switch
@@ -315,27 +331,48 @@ export default function CompteScreen() {
           </View>
 
           {/* Devise */}
-          <View className="px-4 py-3">
-            <Text className="mb-2 text-ink dark:text-bone">Devise</Text>
+          <View className="px-4 py-3 border-b border-gray-100 dark:border-ink-mute">
+            <Text className="mb-2 text-ink dark:text-bone">{t('account.currency')}</Text>
             <SelectModal
               value={currency}
               options={CURRENCY_OPTIONS}
               onChange={setCurrency}
-              title="Choisir une devise"
+              title={t('account.chooseCurrency')}
             />
+          </View>
+
+          {/* Langue */}
+          <View className="px-4 py-3">
+            <Text className="mb-2 text-ink dark:text-bone">{t('account.language')}</Text>
+            <View className="flex-row gap-2">
+              {LANGUAGE_OPTIONS.map((lang) => (
+                <Pressable
+                  key={lang.value}
+                  onPress={() => setLanguage(lang.value)}
+                  className={`flex-1 flex-row items-center gap-2 rounded-xl border px-3 py-2.5 active:opacity-70 ${
+                    language === lang.value ? 'border-gold bg-gold/10' : 'border-gray-200 dark:border-ink-mute'
+                  }`}
+                >
+                  <Text style={{ fontSize: 20 }}>{lang.flag}</Text>
+                  <Text className={`text-sm font-medium ${language === lang.value ? 'text-gold' : 'text-ink dark:text-bone'}`}>
+                    {lang.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
           </View>
 
         </View>
 
         {/* ── Abonnement ── */}
-        <SectionLabel title="Abonnement" />
+        <SectionLabel title={t('account.subscription')} />
 
         {isPremium ? (
           <View className="rounded-2xl border border-gold bg-gold/5 dark:bg-gold/10 p-4 flex-row items-center gap-3">
             <Crown color={colors.gold} size={20} />
             <View className="flex-1">
-              <Text className="font-semibold text-gold">Premium actif</Text>
-              <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">Collection illimitée</Text>
+              <Text className="font-semibold text-gold">{t('account.premiumActive')}</Text>
+              <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">{t('account.unlimitedCollection')}</Text>
             </View>
           </View>
         ) : (
@@ -345,10 +382,10 @@ export default function CompteScreen() {
           >
             <View className="flex-row items-center gap-3 mb-1.5">
               <Crown color={colors.gold} size={20} />
-              <Text className="font-semibold text-gold">Passer en Premium</Text>
+              <Text className="font-semibold text-gold">{t('account.upgradePremium')}</Text>
             </View>
             <Text className="text-sm text-ink-mute dark:text-bone-soft">
-              Collection illimitée · OCR avancé · Passeport PDF
+              {t('account.premiumDesc')}
             </Text>
           </Pressable>
         )}
@@ -356,11 +393,11 @@ export default function CompteScreen() {
         <View className="mt-2 rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4 flex-row items-center gap-3">
           <Package color={isPremium ? colors.gold : colors.inkGray} size={20} />
           <View className="flex-1">
-            <Text className="text-ink dark:text-bone font-medium">Objets catalogués</Text>
+            <Text className="text-ink dark:text-bone font-medium">{t('account.itemsCatalogued')}</Text>
             <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
               {isPremium
                 ? `${itemCount} objet${itemCount !== 1 ? 's' : ''}`
-                : `${itemCount} / ${FREE_LIMITS.items} · plan gratuit`}
+                : `${itemCount} / ${FREE_LIMITS.items} · ${t('account.freePlan')}`}
             </Text>
           </View>
           {!isPremium && !canAddItem && (
@@ -368,13 +405,13 @@ export default function CompteScreen() {
               onPress={() => router.push('/premium')}
               className="rounded-lg bg-gold px-3 py-1.5 active:opacity-80"
             >
-              <Text className="text-xs font-semibold text-ink">Débloquer</Text>
+              <Text className="text-xs font-semibold text-ink">{t('account.unlock')}</Text>
             </Pressable>
           )}
         </View>
 
         {/* ── Aide ── */}
-        <SectionLabel title="Aide" />
+        <SectionLabel title={t('account.help')} />
 
         <View className="rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft">
           <Pressable
@@ -383,9 +420,9 @@ export default function CompteScreen() {
           >
             <BookOpen color={colors.inkGray} size={18} />
             <View className="flex-1">
-              <Text className="font-medium text-ink dark:text-bone">Comment utiliser l'app</Text>
+              <Text className="font-medium text-ink dark:text-bone">{t('account.howToUse')}</Text>
               <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
-                Revoir le guide — collection, coffre, OCR, mode privé…
+                {t('account.tutorialDesc')}
               </Text>
             </View>
           </Pressable>
@@ -395,9 +432,9 @@ export default function CompteScreen() {
           >
             <Shield color={colors.inkGray} size={18} />
             <View className="flex-1">
-              <Text className="font-medium text-ink dark:text-bone">Politique de confidentialité</Text>
+              <Text className="font-medium text-ink dark:text-bone">{t('account.privacyPolicy')}</Text>
               <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
-                Vos données, comment elles sont protégées
+                {t('account.privacyDesc')}
               </Text>
             </View>
           </Pressable>
@@ -407,7 +444,7 @@ export default function CompteScreen() {
           >
             <Mail color={colors.inkGray} size={18} />
             <View className="flex-1">
-              <Text className="font-medium text-ink dark:text-bone">Nous contacter</Text>
+              <Text className="font-medium text-ink dark:text-bone">{t('account.contactUs')}</Text>
               <Text className="text-xs text-ink-mute dark:text-bone-soft mt-0.5">
                 support@objetrare.app
               </Text>
@@ -416,21 +453,21 @@ export default function CompteScreen() {
         </View>
 
         {/* ── Compte ── */}
-        <SectionLabel title="Compte" />
+        <SectionLabel title={t('tabs.account')} />
 
         <View className="rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft">
-          <Pressable onPress={signOut} className="px-4 py-4 border-b border-gray-100 dark:border-ink-mute active:opacity-60">
-            <Text className="font-medium text-red-500">Se déconnecter</Text>
+          <Pressable onPress={handleSignOut} className="px-4 py-4 border-b border-gray-100 dark:border-ink-mute active:opacity-60">
+            <Text className="font-medium text-red-500">{t('account.signOut')}</Text>
           </Pressable>
           <Pressable
             onPress={() => {
               Alert.alert(
-                'Supprimer votre compte ?',
-                'Toutes vos données seront définitivement effacées : collection, documents et fichiers. Cette action est irréversible.',
+                t('account.deleteAccountTitle'),
+                t('account.deleteAccountMsg'),
                 [
-                  { text: 'Annuler', style: 'cancel' },
+                  { text: t('common.cancel'), style: 'cancel' },
                   {
-                    text: 'Supprimer définitivement',
+                    text: t('account.deleteForever'),
                     style: 'destructive',
                     onPress: async () => {
                       setIsDeleting(true);
@@ -439,7 +476,7 @@ export default function CompteScreen() {
                         queryClient.clear();
                         router.replace('/(auth)/login');
                       } catch (e: any) {
-                        Alert.alert('Erreur', e.message ?? 'Impossible de supprimer le compte.');
+                        Alert.alert(t('common.error'), e.message ?? t('account.deleteError'));
                       } finally {
                         setIsDeleting(false);
                       }
@@ -451,7 +488,7 @@ export default function CompteScreen() {
             disabled={isDeleting}
             className="flex-row items-center justify-between px-4 py-4 active:opacity-60"
           >
-            <Text className="font-medium text-red-400">Supprimer mon compte</Text>
+            <Text className="font-medium text-red-400">{t('account.deleteAccount')}</Text>
             {isDeleting && <ActivityIndicator size="small" color="#F87171" />}
           </Pressable>
         </View>

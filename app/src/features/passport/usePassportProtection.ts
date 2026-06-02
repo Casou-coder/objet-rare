@@ -1,5 +1,6 @@
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useBiometric } from '@/stores/biometric';
+import { i18n } from '@/lib/i18n';
 
 // Cached at module level — hardware capabilities don't change during app session
 let capabilityPromise: Promise<[boolean, boolean]> | null = null;
@@ -31,9 +32,9 @@ export function usePassportProtection() {
     }
 
     const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: 'Déverrouillez Objet Rare',
-      fallbackLabel: 'Utiliser le code',
-      cancelLabel: 'Annuler',
+      promptMessage: i18n.t('lock.promptMessage'),
+      fallbackLabel: i18n.t('lock.fallbackLabel'),
+      cancelLabel: i18n.t('common.cancel'),
     });
 
     if (result.success) unlock();

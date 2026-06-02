@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router';
 import { GalleryVerticalEnd, Vault, Plus, User } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
+import { useTranslation } from 'react-i18next';
 import { colors } from '@/lib/theme';
 
 export default function TabsLayout() {
   const { colorScheme } = useColorScheme();
+  const { t } = useTranslation();
   const isDark = colorScheme === 'dark';
 
   return (
@@ -22,28 +24,28 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="collection"
         options={{
-          title: 'Collection',
+          title: t('tabs.collection'),
           tabBarIcon: ({ color, size }) => <GalleryVerticalEnd color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="coffre"
         options={{
-          title: 'Coffre',
+          title: t('tabs.coffre'),
           tabBarIcon: ({ color, size }) => <Vault color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="ajouter"
         options={{
-          title: 'Ajouter',
+          title: t('tabs.add'),
           tabBarIcon: ({ color, size }) => <Plus color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="compte"
         options={{
-          title: 'Mon compte',
+          title: t('tabs.account'),
           tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
         }}
       />

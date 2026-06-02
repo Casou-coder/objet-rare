@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { BookOpen, Archive, Crown, Bell, BarChart2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as TrackingTransparency from 'expo-tracking-transparency';
+import { useTranslation } from 'react-i18next';
 import { requestNotificationPermission } from '@/lib/notifications';
 import { colors } from '@/lib/theme';
 
@@ -12,61 +13,25 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 type SlideKind = 'info' | 'notifications' | 'tracking';
 
-type Slide = {
-  kind: SlideKind;
-  icon: React.ComponentType<{ color: string; size: number }>;
-  title: string;
-  body: string;
-  primaryLabel?: string;
-  skipLabel?: string;
-};
-
-const SLIDES: Slide[] = [
-  {
-    kind: 'info',
-    icon: BookOpen,
-    title: 'Ta collection,\ntoujours avec toi',
-    body: 'Catalogue chaque objet précieux avec sa photo, ses informations et ses documents en quelques secondes.',
-  },
-  {
-    kind: 'info',
-    icon: Archive,
-    title: 'Tous tes documents\nen un seul endroit',
-    body: "Factures, certificats d'authenticité, garanties — accessibles en un instant, protégés et privés.",
-  },
-  {
-    kind: 'info',
-    icon: Crown,
-    title: 'Prouve la valeur\nde chaque objet',
-    body: "Génère un passeport digital pour chaque pièce. Parfait pour la revente, le prêt ou l'assurance.",
-  },
-  {
-    kind: 'notifications',
-    icon: Bell,
-    title: 'Ne rate aucune\nexpiration',
-    body: "Objet Rare t'avertit 30 jours et 7 jours avant l'expiration d'une garantie, pour que tu ne sois jamais pris de court.",
-    primaryLabel: 'Activer les notifications',
-    skipLabel: 'Plus tard',
-  },
-  {
-    kind: 'tracking',
-    icon: BarChart2,
-    title: "Aide-nous à\naméliorer l'app",
-    body: "Des données anonymes et agrégées nous permettent de comprendre comment l'app est utilisée et de la faire évoluer dans la bonne direction.\n\nAucune donnée personnelle, aucune revente.",
-    primaryLabel: 'Autoriser',
-    skipLabel: 'Refuser',
-  },
-];
-
 async function finishOnboarding() {
   await AsyncStorage.setItem('@onboarding_done', '1');
   router.replace('/(auth)/login');
 }
 
 export default function OnboardingScreen() {
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
   const [isPending, setIsPending] = useState(false);
   const listRef = useRef<FlatList>(null);
+
+  const SLIDES = [
+    { kind: 'info' as SlideKind,          icon: BookOpen, title: t('onboarding.slide1Title'), body: t('onboarding.slide1Body') },
+    { kind: 'info' as SlideKind,          icon: Archive,  title: t('onboarding.slide2Title'), body: t('onboarding.slide2Body') },
+    { kind: 'info' as SlideKind,          icon: Crown,    title: t('onboarding.slide3Title'), body: t('onboarding.slide3Body') },
+    { kind: 'notifications' as SlideKind, icon: Bell,     title: t('onboarding.slide4Title'), body: t('onboarding.slide4Body'), primaryLabel: t('onboarding.notifTitle'), skipLabel: t('onboarding.notifLater') },
+    { kind: 'tracking' as SlideKind,      icon: BarChart2,title: t('onboarding.trackingTitle'), body: t('onboarding.trackingBody'), primaryLabel: t('onboarding.allow'), skipLabel: t('onboarding.decline') },
+  ];
+
   const slide = SLIDES[index]!;
 
   const advance = () => {
@@ -100,6 +65,7 @@ export default function OnboardingScreen() {
       advance();
     }
   };
+
   const isPermissionSlide = slide.kind !== 'info';
   const isLastInfoSlide = slide.kind === 'info' && index === SLIDES.filter(s => s.kind === 'info').length - 1;
 
@@ -134,7 +100,6 @@ export default function OnboardingScreen() {
         }}
       />
 
-      {/* Pagination dots */}
       <View className="flex-row items-center justify-center gap-2 mb-6">
         {SLIDES.map((_, i) => (
           <View
@@ -153,7 +118,7 @@ export default function OnboardingScreen() {
           {isPending
             ? <ActivityIndicator color={colors.ink} />
             : <Text className="font-semibold text-base text-ink">
-                {isPermissionSlide ? slide.primaryLabel : isLastInfoSlide ? 'Continuer' : 'Suivant'}
+                {isPermissionSlide ? slide.primaryLabel : isLastInfoSlide ? t('common.continue') : t('common.next')}
               </Text>
           }
         </Pressable>

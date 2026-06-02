@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { View, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, Stack, router, useNavigation } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { ItemForm } from '@/features/items/ItemForm';
 import { useItem, useUpdateItem } from '@/features/items/hooks';
 import { useBackHeader } from '@/lib/useBackHeader';
@@ -10,11 +11,12 @@ import { haptic } from '@/lib/haptics';
 import type { ItemFormValues } from '@/features/items/schemas';
 
 export default function EditItemScreen() {
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: item, isLoading } = useItem(id);
   const { mutateAsync: updateItem, isPending } = useUpdateItem(id ?? '');
   const navigation = useNavigation();
-  const backHeader = useBackHeader("Modifier l'objet");
+  const backHeader = useBackHeader(t('item.editTitle'));
   const [isDirty, setIsDirty] = useState(false);
   const submitRef = useRef<(() => void) | null>(null);
 
@@ -23,34 +25,27 @@ export default function EditItemScreen() {
       if (!isDirty) return;
       e.preventDefault();
       Alert.alert(
-        'Modifications non sauvegardées',
-        'Que veux-tu faire de tes modifications ?',
+        t('item.unsavedTitle'),
+        t('item.unsavedMsg'),
         [
-          { text: 'Continuer à éditer', style: 'cancel' },
-          {
-            text: 'Sauvegarder les modifications',
-            onPress: () => submitRef.current?.(),
-          },
-          {
-            text: 'Abandonner les modifications',
-            style: 'destructive',
-            onPress: () => (navigation as any).dispatch(e.data.action),
-          },
+          { text: t('item.keepEditing'), style: 'cancel' },
+          { text: t('item.saveChanges'), onPress: () => submitRef.current?.() },
+          { text: t('item.discardChanges'), style: 'destructive', onPress: () => (navigation as any).dispatch(e.data.action) },
         ],
       );
     });
     return unsubscribe;
-  }, [navigation, isDirty]);
+  }, [navigation, isDirty, t]);
 
   const onSubmit = async (values: ItemFormValues) => {
     try {
       await updateItem(values);
       haptic.success();
-      setIsDirty(false); // empêche le dialogue beforeRemove de se déclencher
+      setIsDirty(false);
       router.back();
     } catch (e: any) {
       haptic.error();
-      Alert.alert('Erreur', e.message ?? "Impossible de modifier l'objet.");
+      Alert.alert(t('common.error'), e.message ?? t('item.updateError'));
     }
   };
 
@@ -83,7 +78,7 @@ export default function EditItemScreen() {
         defaultValues={defaultValues}
         onSubmit={onSubmit}
         isPending={isPending}
-        submitLabel="Enregistrer les modifications"
+        submitLabel={t('item.saveChangesBtn')}
         onDirtyChange={setIsDirty}
         onRegisterSubmit={(fn) => { submitRef.current = fn; }}
       />

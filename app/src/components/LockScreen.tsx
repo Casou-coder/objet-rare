@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react';
 import { View, Text, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Lock } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import { usePassportProtection } from '@/features/passport/usePassportProtection';
 import { colors } from '@/lib/theme';
 
 export function LockScreen() {
+  const { t } = useTranslation();
   const { authenticate } = usePassportProtection();
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -18,7 +20,6 @@ export function LockScreen() {
     if (!success) setFailed(true);
   };
 
-  // Auto-trigger biometrics when the screen appears
   useEffect(() => { handleUnlock(); }, []);
 
   return (
@@ -29,12 +30,12 @@ export function LockScreen() {
 
       <Text className="mt-8 font-serif text-3xl text-ink dark:text-bone">Objet Rare</Text>
       <Text className="mt-2 text-sm text-ink-mute dark:text-bone-soft">
-        Ton coffre est verrouillé
+        {t('lock.title')}
       </Text>
 
       {failed && (
         <Text className="mt-4 text-sm text-red-400">
-          Authentification échouée. Réessaie.
+          {t('lock.failed')}
         </Text>
       )}
 
@@ -45,7 +46,7 @@ export function LockScreen() {
       >
         {loading
           ? <ActivityIndicator color={colors.gold} />
-          : <Text className="font-medium text-gold">Déverrouiller</Text>
+          : <Text className="font-medium text-gold">{t('lock.unlock')}</Text>
         }
       </Pressable>
     </SafeAreaView>

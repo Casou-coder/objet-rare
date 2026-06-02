@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { i18n } from './i18n';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -14,8 +15,8 @@ Notifications.setNotificationHandler({
 export async function requestNotificationPermission(): Promise<boolean> {
   if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync('warranty', {
-      name: 'Garanties',
-      description: "Rappels d'expiration de garantie",
+      name: i18n.t('notify.warrantyChannelName'),
+      description: i18n.t('notify.warrantyChannelDesc'),
       importance: Notifications.AndroidImportance.DEFAULT,
     });
   }
@@ -43,8 +44,8 @@ export async function scheduleWarrantyNotifications(
     await Notifications.scheduleNotificationAsync({
       identifier: `warranty-${daysBeforeLabel}-${docId}`,
       content: {
-        title: 'Garantie bientôt expirée',
-        body: `La garantie de "${itemName}" expire dans ${daysBefore} jour${daysBefore > 1 ? 's' : ''}.`,
+        title: i18n.t('notify.warrantyTitle'),
+        body: i18n.t('notify.warrantyBody', { itemName, count: daysBefore }),
         data: { docId },
       },
       trigger: {
