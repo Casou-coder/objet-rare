@@ -131,7 +131,7 @@ export async function generatePassportPdf(item: Item): Promise<string> {
 <body>
   <div class="header">
     <div>
-      <div class="brand">Objet Rare</div>
+      <div class="brand">OR Vault</div>
       <div class="tagline">${t('item.passportTitle')}</div>
     </div>
     <div class="gen-date">${t('item.generatedOn')}<br>${generatedAt}</div>
@@ -176,7 +176,7 @@ export async function generatePassportPdf(item: Item): Promise<string> {
     </div>` : ''}
 
     <div class="footer">
-      <span>Objet Rare — ${t('item.privateCollection')}</span>
+      <span>OR Vault — ${t('item.privateCollection')}</span>
       <span>${t('item.refAbbr')} ${item.id.substring(0, 8).toUpperCase()}</span>
     </div>
   </div>
