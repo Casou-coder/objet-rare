@@ -69,7 +69,14 @@
           "faceIDPermission": "OR Vault uses Face ID to protect access to your collection and documents."
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "FILL_ADMOB_ANDROID_APP_ID",
+          "iosAppId": "FILL_ADMOB_IOS_APP_ID"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
