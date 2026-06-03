@@ -4,11 +4,13 @@ const path = require('path');
 
 const config = getDefaultConfig(__dirname);
 
-// Packages that use ESM dynamic import(variable) or ES2022+ syntax
-// incompatible with Hermes — force Babel transformation on them.
-// @supabase uses import(OTEL_PKG) for optional OpenTelemetry support.
-config.transformer.transformIgnorePatterns = [
-  /node_modules\/(?!(@supabase|node-forge|i18next|react-i18next|react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?\/|@expo-google-fonts\/|react-navigation|@react-navigation\/|@unimodules\/|unimodules|sentry-expo|native-base|react-native-svg)\/)/,
+// Force CJS over ESM in package exports resolution.
+// @supabase ESM uses import(variable) which Hermes rejects;
+// the CJS version already uses Promise.resolve() — fully compatible.
+config.resolver.unstable_conditionNames = [
+  'require',
+  'default',
+  'react-native',
 ];
 
 // Modules Node.js non disponibles dans React Native
