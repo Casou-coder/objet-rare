@@ -7,7 +7,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { Crown, Package, Eye, Hash, Pencil, X, BookOpen, Shield, Mail, Globe } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
-import { BannerAd } from '@/components/BannerAd';
 import { useAuth } from '@/stores/auth';
 import { usePlan, FREE_LIMITS } from '@/features/premium/usePlan';
 import { deleteAccount } from '@/features/account/deleteAccount';
@@ -493,9 +492,6 @@ export default function CompteScreen() {
           </Pressable>
         </View>
 
-        <View className="mt-6">
-          <BannerAd />
-        </View>
 
       </ScrollView>
     </SafeAreaView>
