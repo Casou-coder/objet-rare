@@ -87,6 +87,13 @@ Légende : **[P]** décision produit (prise par le responsable produit) · **[T]
 |---|---|---|---|
 | P19 | Connexion Apple sur Android | **iOS uniquement**. Android : Google + e-mail. | Décision produit du 2026-11-19 (app 0.2.0). Déjà le comportement du code (`appleAvailable()`). |
 
+| P20 | Hébergement (étape 5) | **Gratuit pour l'instant** : Render Free (API, Francfort) + Neon Free (PostgreSQL, Francfort) + Backblaze B2 (documents, région EU Central). Passage en payant à décider avant la sortie. | Décision produit du 2026-11-19 (backend 0.1.0). L'API gratuite s'endort après 15 min d'inactivité. |
+
+| # | Décision technique | Justification |
+|---|---|---|
+| T22 | Suppression S3 = **toutes les versions** de chaque fichier (`ListObjectVersions` puis `DeleteObjects` avec `VersionId`) ; erreur si une suppression échoue. | B2 garde toutes les versions par défaut : une suppression simple laisserait le fichier. Règle « suppression = purge totale ». |
+| T23 | Déploiement décrit dans `render.yaml` (Blueprint) : Node 22, build `npm ci --include=dev && npm run build`, contrôle `/health`, secrets jamais dans le fichier (`sync: false`). Migrations appliquées au démarrage. | Reproductible, redéploiement à chaque push sur `master`. Guide : `docs/HEBERGEMENT.md`. |
+
 ### Points ouverts relevés à l'étape 4
 
 - ~~**Apple sur Android**~~ : tranché, voir P19.

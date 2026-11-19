@@ -2,8 +2,10 @@ import {
   DeleteObjectsCommand,
   GetObjectCommand,
   HeadObjectCommand,
+  ListObjectVersionsCommand,
   PutObjectCommand,
   S3Client,
+  type ObjectIdentifier,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { AppConfig } from '../config';
@@ -64,16 +66,41 @@ export class S3Storage implements Storage {
     return { body: Buffer.from(bytes), contentType: res.ContentType ?? 'application/octet-stream' };
   }
 
+  /**
+   * Purge totale : supprime chaque version de l'objet (et les marqueurs de suppression),
+   * pas seulement la version courante. Indispensable sur un bucket versionné (Backblaze B2
+   * garde toutes les versions par défaut), sans effet de bord sur un bucket non versionné.
+   */
   async deleteMany(keys: string[]): Promise<void> {
     const unique = [...new Set(keys.filter(Boolean))];
-    for (let i = 0; i < unique.length; i += 1000) {
-      await this.client.send(
+    const targets: ObjectIdentifier[] = [];
+    for (const key of unique) targets.push(...(await this.versionsOf(key)));
+    for (let i = 0; i < targets.length; i += 1000) {
+      const res = await this.client.send(
         new DeleteObjectsCommand({
           Bucket: this.bucket,
-          Delete: { Objects: unique.slice(i, i + 1000).map((Key) => ({ Key })), Quiet: true },
+          Delete: { Objects: targets.slice(i, i + 1000), Quiet: true },
         }),
       );
+      if (res.Errors?.length) throw new Error(`Suppression incomplète (${res.Errors.length} fichier(s))`);
     }
+  }
+
+  private async versionsOf(key: string): Promise<ObjectIdentifier[]> {
+    const found: ObjectIdentifier[] = [];
+    let KeyMarker: string | undefined;
+    let VersionIdMarker: string | undefined;
+    do {
+      const page = await this.client.send(
+        new ListObjectVersionsCommand({ Bucket: this.bucket, Prefix: key, KeyMarker, VersionIdMarker }),
+      );
+      for (const v of [...(page.Versions ?? []), ...(page.DeleteMarkers ?? [])]) {
+        if (v.Key === key) found.push({ Key: key, VersionId: v.VersionId });
+      }
+      KeyMarker = page.IsTruncated ? page.NextKeyMarker : undefined;
+      VersionIdMarker = page.IsTruncated ? page.NextVersionIdMarker : undefined;
+    } while (KeyMarker);
+    return found.length ? found : [{ Key: key }];
   }
 }
 
