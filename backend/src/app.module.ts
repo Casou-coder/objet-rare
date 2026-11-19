@@ -24,6 +24,7 @@ import { DocumentsService } from './services/documents.service';
 import { ItemsService } from './services/items.service';
 import { UsersService } from './services/users.service';
 import { ValueService } from './services/value.service';
+import { DevStorageController } from './storage/dev-storage.controller';
 import { MemoryStorage, S3Storage, STORAGE, type Storage } from './storage/storage';
 
 export interface AppOverrides {
@@ -51,7 +52,10 @@ export class AppModule {
   static register(config: AppConfig, o: AppOverrides = {}): DynamicModule {
     return {
       module: AppModule,
-      controllers: [HealthController, MeController, MetadataController, ItemsController, DocumentsController, AccountController],
+      controllers: [
+        HealthController, MeController, MetadataController, ItemsController, DocumentsController, AccountController,
+        ...(config.storageMode === 'memory' && config.nodeEnv !== 'production' ? [DevStorageController] : []),
+      ],
       providers: [
         { provide: CONFIG, useValue: config },
         {
@@ -64,7 +68,7 @@ export class AppModule {
         },
         {
           provide: STORAGE,
-          useValue: o.storage ?? (config.storageMode === 'memory' ? new MemoryStorage() : new S3Storage(config.s3)),
+          useValue: o.storage ?? (config.storageMode === 'memory' ? new MemoryStorage(config.publicUrl) : new S3Storage(config.s3)),
         },
         {
           provide: TOKEN_VERIFIER,

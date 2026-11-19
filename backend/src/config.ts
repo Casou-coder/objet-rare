@@ -8,6 +8,8 @@ export type StorageMode = 's3' | 'memory';
 export interface AppConfig {
   nodeEnv: string;
   port: number;
+  /** URL publique de l'API (utilisée par le stockage de développement). */
+  publicUrl: string;
   databaseUrl: string;
   authMode: AuthMode;
   firebaseProjectId?: string;
@@ -49,6 +51,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     nodeEnv,
     port: Number(env.PORT ?? 3000),
+    publicUrl: (env.PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/$/, ''),
     databaseUrl: env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/vault',
     authMode,
     firebaseProjectId: env.FIREBASE_PROJECT_ID,

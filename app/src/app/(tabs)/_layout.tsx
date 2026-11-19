@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { GalleryVerticalEnd, Vault, Plus, User } from 'lucide-react-native';
+import { FileText, GalleryVerticalEnd, User, Vault } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import { useTranslation } from 'react-i18next';
 import { colors } from '@/lib/theme';
@@ -21,34 +21,10 @@ export default function TabsLayout() {
         },
       }}
     >
-      <Tabs.Screen
-        name="collection"
-        options={{
-          title: t('tabs.collection'),
-          tabBarIcon: ({ color, size }) => <GalleryVerticalEnd color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="coffre"
-        options={{
-          title: t('tabs.coffre'),
-          tabBarIcon: ({ color, size }) => <Vault color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="ajouter"
-        options={{
-          title: t('tabs.add'),
-          tabBarIcon: ({ color, size }) => <Plus color={color} size={size} />,
-        }}
-      />
-      <Tabs.Screen
-        name="compte"
-        options={{
-          title: t('tabs.account'),
-          tabBarIcon: ({ color, size }) => <User color={color} size={size} />,
-        }}
-      />
+      <Tabs.Screen name="collection" options={{ title: t('v.tabs.collection'), tabBarIcon: ({ color, size }) => <GalleryVerticalEnd color={color} size={size} /> }} />
+      <Tabs.Screen name="coffre" options={{ title: t('v.tabs.vault'), tabBarIcon: ({ color, size }) => <Vault color={color} size={size} /> }} />
+      <Tabs.Screen name="documents" options={{ title: t('v.tabs.documents'), tabBarIcon: ({ color, size }) => <FileText color={color} size={size} /> }} />
+      <Tabs.Screen name="compte" options={{ title: t('v.tabs.account'), tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }} />
     </Tabs>
   );
 }

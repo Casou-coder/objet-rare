@@ -2,7 +2,7 @@
   "expo": {
     "name": "OR Vault",
     "slug": "or-vault",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "orvault",
@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#0B0B0F"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.orvault"
@@ -27,12 +25,8 @@
       },
       "permissions": [
         "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
         "android.permission.USE_BIOMETRIC",
         "android.permission.USE_FINGERPRINT",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.POST_NOTIFICATIONS",
         "com.google.android.gms.permission.AD_ID"
       ]
     },
@@ -46,8 +40,15 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "OR Vault needs access to your photos to add images to your items and documents.",
-          "cameraPermission": "OR Vault needs access to your camera to photograph your items."
+          "photosPermission": "OR Vault needs access to your photos to add a photo of your items and import documents.",
+          "cameraPermission": "OR Vault needs access to your camera to photograph your items and certificates."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "OR Vault uses the camera to photograph your certificates and scan QR codes.",
+          "recordAudioAndroid": false
         }
       ],
       "expo-font",
@@ -55,12 +56,6 @@
         "expo-tracking-transparency",
         {
           "userTrackingPermission": "Anonymous and aggregated data helps us improve the app. No personal data is collected or sold."
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "color": "#C9A84C"
         }
       ],
       [

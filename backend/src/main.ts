@@ -12,6 +12,10 @@ export async function createApp(config: AppConfig, overrides: AppOverrides = {})
     logger: config.nodeEnv === 'test' ? false : ['error', 'warn', 'log'],
   });
   app.useGlobalFilters(new AppExceptionFilter());
+  if (config.storageMode === 'memory' && config.nodeEnv !== 'production') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    app.use('/dev-storage', require('express').raw({ type: () => true, limit: '25mb' }));
+  }
   app.enableShutdownHooks();
   return app;
 }

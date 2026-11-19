@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/stores/auth';
 import {
   getOfferings, purchasePackage, restorePurchases, isPremiumEntitled,
   type RCOffering, type RCPackage,
@@ -10,14 +9,14 @@ export function usePurchases() {
   const [offering, setOffering] = useState<RCOffering | null>(null);
   const [isPending, setIsPending] = useState(false);
   const qc = useQueryClient();
-  const { user } = useAuth();
 
   useEffect(() => {
     getOfferings().then(setOffering).catch(() => {});
   }, []);
 
+  // Le plan fait foi côté serveur (/me) ; la synchronisation RevenueCat → serveur arrive à l'étape 6.
   const invalidatePlan = () => {
-    qc.invalidateQueries({ queryKey: ['customer-info', user?.id] });
+    qc.invalidateQueries({ queryKey: ['me'] });
   };
 
   const purchase = async (pkg: RCPackage): Promise<boolean> => {

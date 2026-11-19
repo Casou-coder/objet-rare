@@ -2,16 +2,15 @@ import { useRef, useState } from 'react';
 import { View, Text, Pressable, FlatList, Dimensions, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { BookOpen, Archive, Crown, Bell, BarChart2 } from 'lucide-react-native';
+import { BookOpen, Archive, Crown, BarChart2 } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as TrackingTransparency from 'expo-tracking-transparency';
 import { useTranslation } from 'react-i18next';
-import { requestNotificationPermission } from '@/lib/notifications';
 import { colors } from '@/lib/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-type SlideKind = 'info' | 'notifications' | 'tracking';
+type SlideKind = 'info' | 'tracking';
 
 async function finishOnboarding() {
   await AsyncStorage.setItem('@onboarding_done', '1');
@@ -28,7 +27,6 @@ export default function OnboardingScreen() {
     { kind: 'info' as SlideKind,          icon: BookOpen, title: t('onboarding.slide1Title'), body: t('onboarding.slide1Body') },
     { kind: 'info' as SlideKind,          icon: Archive,  title: t('onboarding.slide2Title'), body: t('onboarding.slide2Body') },
     { kind: 'info' as SlideKind,          icon: Crown,    title: t('onboarding.slide3Title'), body: t('onboarding.slide3Body') },
-    { kind: 'notifications' as SlideKind, icon: Bell,     title: t('onboarding.slide4Title'), body: t('onboarding.slide4Body'), primaryLabel: t('onboarding.notifTitle'), skipLabel: t('onboarding.notifLater') },
     { kind: 'tracking' as SlideKind,      icon: BarChart2,title: t('onboarding.trackingTitle'), body: t('onboarding.trackingBody'), primaryLabel: t('onboarding.allow'), skipLabel: t('onboarding.decline') },
   ];
 
@@ -45,9 +43,7 @@ export default function OnboardingScreen() {
   const handlePrimary = async () => {
     setIsPending(true);
     try {
-      if (slide.kind === 'notifications') {
-        await requestNotificationPermission();
-      } else if (slide.kind === 'tracking') {
+      if (slide.kind === 'tracking') {
         await TrackingTransparency.requestTrackingPermissionsAsync();
         await finishOnboarding();
         return;

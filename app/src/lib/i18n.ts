@@ -3,6 +3,8 @@ import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 import fr from '@/locales/fr';
 import en from '@/locales/en';
+import v1fr from '@/locales/v1.fr';
+import v1en from '@/locales/v1.en';
 
 export type Language = 'fr' | 'en';
 
@@ -26,8 +28,8 @@ export function getDeviceRegionCurrency(): 'EUR' | 'USD' | 'GBP' | 'CHF' {
 
 i18n.use(initReactI18next).init({
   resources: {
-    fr: { translation: fr },
-    en: { translation: en },
+    fr: { translation: { ...fr, ...v1fr } },
+    en: { translation: { ...en, ...v1en } },
   },
   lng: getDeviceLanguage(),
   fallbackLng: 'en',

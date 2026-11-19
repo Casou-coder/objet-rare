@@ -1,10 +1,18 @@
-export function formatValue(n: number, symbol: string, compact: boolean): string {
-  if (compact) {
-    if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toLocaleString('fr-FR', { maximumFractionDigits: 1 })} Md ${symbol}`;
-    if (n >= 1_000_000)     return `${(n / 1_000_000).toLocaleString('fr-FR',     { maximumFractionDigits: 1 })} M ${symbol}`;
-    if (n >= 10_000)        return `${Math.round(n / 1_000).toLocaleString('fr-FR')} k ${symbol}`;
+const locale = (lang: string) => (lang.startsWith('fr') ? 'fr-FR' : 'en-GB');
+
+/** Montant sobre, sans notation spéculative. */
+export function formatMoney(amount: number, currency: string, lang = 'fr'): string {
+  try {
+    return new Intl.NumberFormat(locale(lang), { style: 'currency', currency, maximumFractionDigits: 0 }).format(amount);
+  } catch {
+    return `${Math.round(amount).toLocaleString(locale(lang))} ${currency}`;
   }
-  return `${n.toLocaleString('fr-FR')} ${symbol}`;
+}
+
+export function formatDate(iso: string, lang = 'fr'): string {
+  const d = new Date(iso.length === 10 ? `${iso}T00:00:00` : iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString(locale(lang), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export function maskEmail(email: string): string {

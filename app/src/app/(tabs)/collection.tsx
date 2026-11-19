@@ -1,367 +1,69 @@
-import { useState, useMemo, useEffect, useRef, memo } from 'react';
-import { View, Text, FlatList, Pressable, TextInput, ScrollView, Animated, Modal } from 'react-native';
-import { BannerAd } from '@/components/BannerAd';
-import { Image } from 'expo-image';
-import { useTranslation } from 'react-i18next';
-import { useSignedPhotoUrl } from '@/lib/photos';
-import { Search, Eye, EyeOff, SlidersHorizontal, Check, AlertTriangle } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { useState } from 'react';
+import { FlatList, Pressable, RefreshControl, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useItems } from '@/features/items/hooks';
-import { useExpiringWarranties } from '@/features/documents/hooks';
-import { usePreferences, CURRENCY_SYMBOL } from '@/stores/preferences';
-import { daysUntil } from '@/lib/notifications';
-import { CATEGORY_ICON } from '@/lib/categories';
-import { formatValue } from '@/lib/format';
+import { router } from 'expo-router';
+import { Plus } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
+import { useItems } from '@/api/hooks';
+import { BannerAd } from '@/components/BannerAd';
+import { Chips, EmptyState, ErrorState, ItemImage, Placeholders, Title } from '@/components/ui';
+import { useStartAdd } from '@/features/add/useStartAdd';
 import { colors } from '@/lib/theme';
-import type { Item, ItemCategory } from '@/types/database';
 
-type SortKey = 'recent' | 'price_desc' | 'price_asc' | 'name' | 'brand';
-
-function SortModal({
-  visible, current, onSelect, onClose,
-}: {
-  visible: boolean;
-  current: SortKey;
-  onSelect: (key: SortKey) => void;
-  onClose: () => void;
-}) {
-  const { t } = useTranslation();
-
-  const SORT_OPTIONS: { key: SortKey; label: string }[] = [
-    { key: 'recent',     label: t('collection.sort.recent') },
-    { key: 'price_desc', label: t('collection.sort.priceDesc') },
-    { key: 'price_asc',  label: t('collection.sort.priceAsc') },
-    { key: 'name',       label: t('collection.sort.nameAZ') },
-    { key: 'brand',      label: t('collection.sort.brandAZ') },
-  ];
-
-  return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View className="flex-1 justify-end bg-black/60">
-        <Pressable className="absolute inset-0" onPress={onClose} />
-        <View className="rounded-t-3xl bg-white dark:bg-ink-soft px-6 pb-10 pt-4">
-          <View className="mb-4 h-1 w-10 self-center rounded-full bg-gray-200 dark:bg-ink-mute" />
-          <Text className="mb-3 font-serif text-lg text-ink dark:text-bone">{t('collection.sortBy')}</Text>
-          {SORT_OPTIONS.map((opt) => (
-            <Pressable
-              key={opt.key}
-              onPress={() => { onSelect(opt.key); onClose(); }}
-              className="flex-row items-center justify-between border-b border-gray-100 dark:border-ink-mute py-4 last:border-0 active:opacity-70"
-            >
-              <Text className={`text-base ${current === opt.key ? 'font-semibold text-gold' : 'text-ink dark:text-bone'}`}>
-                {opt.label}
-              </Text>
-              {current === opt.key && <Check color={colors.gold} size={18} />}
-            </Pressable>
-          ))}
-        </View>
-      </View>
-    </Modal>
-  );
-}
-
-function RedactedBar({ width, height = 32 }: { width: number; height?: number }) {
-  return (
-    <View
-      style={{ width, height, borderRadius: 8 }}
-      className="bg-bone-soft dark:bg-ink-mute"
-    />
-  );
-}
-
-function PatrimonyCard({
-  count, totalValue, excludedCount, isPrivate, onToggle, currencySymbol, compact,
-}: {
-  count: number;
-  totalValue: number | null;
-  excludedCount: number;
-  isPrivate: boolean;
-  onToggle: () => void;
-  currencySymbol: string;
-  compact: boolean;
-}) {
-  const { t } = useTranslation();
-  return (
-    <View className="mx-6 mb-4 rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4">
-      <View className="flex-row items-center justify-between mb-3">
-        <View className="flex-row items-baseline gap-2">
-          {isPrivate
-            ? <RedactedBar width={36} height={22} />
-            : <Text className="font-serif text-2xl text-ink dark:text-bone">{count}</Text>}
-          <Text className="text-xs uppercase tracking-widest text-ink-mute dark:text-bone-soft">
-            {t('collection.item', { count })}
-          </Text>
-        </View>
-        <Pressable onPress={onToggle} hitSlop={12} className="active:opacity-60">
-          {isPrivate
-            ? <EyeOff color={colors.gold} size={20} />
-            : <Eye color={colors.inkGray} size={20} />}
-        </Pressable>
-      </View>
-
-      <View className="mb-3 h-px bg-gray-100 dark:bg-ink-mute" />
-
-      <Text className="mb-1 text-xs uppercase tracking-widest text-ink-mute dark:text-bone-soft">
-        {t('collection.totalValue')}
-      </Text>
-      {isPrivate
-        ? <RedactedBar width={140} height={36} />
-        : totalValue != null
-          ? <Text className="font-serif text-3xl text-gold" adjustsFontSizeToFit numberOfLines={1}>
-              {formatValue(totalValue, currencySymbol, compact)}
-            </Text>
-          : <Text className="font-serif text-3xl text-ink-mute dark:text-bone-soft">—</Text>}
-
-      {!isPrivate && excludedCount > 0 && (
-        <Text className="mt-1.5 text-xs text-ink-mute dark:text-bone-soft">
-          {excludedCount} {t('collection.differentCurrency')}
-        </Text>
-      )}
-    </View>
-  );
-}
-
-function SkeletonRow() {
-  const opacity = useRef(new Animated.Value(0.4)).current;
-  useEffect(() => {
-    const anim = Animated.loop(
-      Animated.sequence([
-        Animated.timing(opacity, { toValue: 1, duration: 800, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 0.4, duration: 800, useNativeDriver: true }),
-      ])
-    );
-    anim.start();
-    return () => anim.stop();
-  }, [opacity]);
-  return (
-    <Animated.View style={{ opacity }} className="mb-3 flex-row items-center gap-4 rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4">
-      <View className="h-16 w-16 rounded-xl bg-bone-soft dark:bg-ink-mute" />
-      <View className="flex-1 gap-2">
-        <View className="h-2.5 w-16 rounded bg-bone-soft dark:bg-ink-mute" />
-        <View className="h-5 w-36 rounded bg-bone-soft dark:bg-ink-mute" />
-        <View className="h-3 w-24 rounded bg-bone-soft dark:bg-ink-mute" />
-      </View>
-    </Animated.View>
-  );
-}
-
-const ItemThumbnail = memo(function ItemThumbnail({ item }: { item: Item }) {
-  const signedUrl = useSignedPhotoUrl(item.cover_photo_url);
-  if (signedUrl) {
-    return (
-      <View className="h-16 w-16 overflow-hidden rounded-xl bg-bone-soft dark:bg-ink-soft">
-        <Image source={{ uri: signedUrl }} style={{ width: 64, height: 64 }} contentFit="cover" cachePolicy="memory-disk" transition={200} />
-      </View>
-    );
-  }
-  const CategoryIcon = CATEGORY_ICON[item.category];
-  return (
-    <View className="h-16 w-16 items-center justify-center rounded-xl bg-bone-soft dark:bg-ink-soft">
-      <CategoryIcon color={colors.gold} size={28} />
-    </View>
-  );
-});
-
-const ItemRow = memo(function ItemRow({ item, hasExpiringWarranty }: { item: Item; hasExpiringWarranty?: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <Pressable
-      onPress={() => router.push(`/item/${item.id}`)}
-      className="mb-3 flex-row items-center gap-4 rounded-2xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft p-4 active:opacity-80"
-    >
-      <ItemThumbnail item={item} />
-      <View className="flex-1">
-        <Text className="text-xs uppercase tracking-wider text-gold">
-          {t(`item.categories.${item.category}`, { defaultValue: item.category })}
-        </Text>
-        <Text className="mt-0.5 font-serif text-xl text-ink dark:text-bone">{item.name}</Text>
-        <Text className="text-ink-mute dark:text-bone-soft">{item.brand}</Text>
-      </View>
-      {hasExpiringWarranty && (
-        <View className="ml-2 h-7 w-7 items-center justify-center rounded-full bg-amber-100">
-          <AlertTriangle color="#D97706" size={14} />
-        </View>
-      )}
-    </Pressable>
-  );
-});
-
+/** Ma collection : galerie privée. Image, nom, date d'ajout — rien d'autre (Page ma collection §3). */
 export default function CollectionScreen() {
   const { t } = useTranslation();
-  const { data: items, isLoading, error, refetch, isRefetching } = useItems();
-  const { data: expiringWarranties } = useExpiringWarranties(60);
-  const [search, setSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState<ItemCategory | 'all'>('all');
-  const [sort, setSort] = useState<SortKey>('recent');
-  const [sortVisible, setSortVisible] = useState(false);
-
-  const CATEGORY_FILTERS: { key: ItemCategory | 'all'; label: string }[] = [
-    { key: 'all',     label: t('collection.categories.all') },
-    { key: 'watch',   label: t('collection.categories.watches') },
-    { key: 'handbag', label: t('collection.categories.bags') },
-    { key: 'sneaker', label: t('collection.categories.sneakers') },
-    { key: 'jewelry', label: t('collection.categories.jewelry') },
-    { key: 'other',   label: t('collection.categories.other') },
-  ];
-
-  const expiringItemIds = useMemo(
-    () => new Set((expiringWarranties ?? []).map((w) => w.item_id).filter(Boolean) as string[]),
-    [expiringWarranties],
-  );
-  const { statsPrivate: isPrivate, setStatsPrivate, currency, compactValues } = usePreferences();
-  const currencySymbol = CURRENCY_SYMBOL[currency];
-
-  const filteredItems = useMemo(() => {
-    if (!items) return [];
-    const q = search.trim().toLowerCase();
-    const filtered = items.filter((item) => {
-      const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
-      const matchesSearch = !q
-        || item.name.toLowerCase().includes(q)
-        || item.brand.toLowerCase().includes(q)
-        || (item.model ?? '').toLowerCase().includes(q);
-      return matchesCategory && matchesSearch;
-    });
-    return [...filtered].sort((a, b) => {
-      switch (sort) {
-        case 'price_asc':  return (a.purchase_price ?? Infinity) - (b.purchase_price ?? Infinity);
-        case 'price_desc': return (b.purchase_price ?? -Infinity) - (a.purchase_price ?? -Infinity);
-        case 'name':       return a.name.localeCompare(b.name);
-        case 'brand':      return a.brand.localeCompare(b.brand);
-        default:           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-      }
-    });
-  }, [items, search, activeCategory, sort]);
-
-  const { totalValue, excludedCount } = useMemo(() => {
-    if (!items?.length) return { totalValue: null, excludedCount: 0 };
-    const priced = items.filter((it) => it.purchase_price != null && it.purchase_price > 0);
-    const matching = priced.filter((it) => (it.purchase_currency ?? 'EUR') === currency);
-    const sum = matching.reduce((acc, it) => acc + (it.purchase_price ?? 0), 0);
-    return {
-      totalValue: sum > 0 ? sum : null,
-      excludedCount: priced.length - matching.length,
-    };
-  }, [items, currency]);
+  const [sort, setSort] = useState<'recent' | 'oldest'>('recent');
+  const items = useItems('collection', sort);
+  const startAdd = useStartAdd();
 
   return (
     <SafeAreaView className="flex-1 bg-bone dark:bg-ink" edges={['top']}>
-      <SortModal
-        visible={sortVisible}
-        current={sort}
-        onSelect={setSort}
-        onClose={() => setSortVisible(false)}
-      />
-
-      <View className="px-6 pb-3 pt-2">
-        <Text className="font-serif text-3xl text-ink dark:text-bone">{t('collection.title')}</Text>
+      <View className="px-5 pt-4">
+        <Title>{t('v.collection.title')}</Title>
+        <View className="mt-4">
+          <Chips
+            value={sort}
+            onChange={setSort}
+            options={[
+              { value: 'recent', label: t('v.collection.sortRecent') },
+              { value: 'oldest', label: t('v.collection.sortOldest') },
+            ]}
+          />
+        </View>
       </View>
 
-      {!isLoading && (
-        <PatrimonyCard
-          count={items?.length ?? 0}
-          totalValue={totalValue}
-          excludedCount={excludedCount}
-          isPrivate={isPrivate}
-          onToggle={() => setStatsPrivate(!isPrivate)}
-          currencySymbol={currencySymbol}
-          compact={compactValues}
-        />
-      )}
-
-      {!isLoading && expiringWarranties && expiringWarranties.length > 0 && (
-        <Pressable
-          onPress={() => router.push('/(tabs)/coffre')}
-          className="mx-6 mb-3 flex-row items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 active:opacity-80"
-        >
-          <AlertTriangle color="#D97706" size={18} />
-          <View className="flex-1">
-            <Text className="text-sm font-medium text-amber-700 dark:text-amber-400">
-              {t('collection.warrantyExpiry', { count: expiringWarranties.length })}
-            </Text>
-            <Text className="text-xs text-amber-600 dark:text-amber-500 mt-0.5">
-              {t('collection.warrantyNearest', { days: daysUntil(expiringWarranties[0]?.expires_at ?? '') })}
-            </Text>
-          </View>
-        </Pressable>
-      )}
-
-      <View className="px-6 pb-3">
-        <View className="flex-row items-center gap-2">
-          <View className="flex-1 flex-row items-center gap-3 rounded-xl border border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft px-3 py-2.5">
-            <Search color={colors.inkGray} size={16} />
-            <TextInput
-              value={search}
-              onChangeText={setSearch}
-              placeholder={t('collection.searchPlaceholder')}
-              placeholderTextColor={colors.inkGray}
-              className="flex-1 text-sm text-ink dark:text-bone"
-              returnKeyType="search"
-              clearButtonMode="while-editing"
-            />
-          </View>
-          <Pressable
-            onPress={() => setSortVisible(true)}
-            className={`rounded-xl border p-2.5 active:opacity-70 ${sort !== 'recent' ? 'border-gold bg-gold/10' : 'border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft'}`}
-          >
-            <SlidersHorizontal color={sort !== 'recent' ? colors.gold : colors.inkGray} size={18} />
-          </Pressable>
-        </View>
-
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mt-3 -mx-6 px-6" contentContainerClassName="gap-2">
-          {CATEGORY_FILTERS.map((f) => (
-            <Pressable
-              key={f.key}
-              onPress={() => setActiveCategory(f.key)}
-              className={`rounded-full border px-4 py-1.5 ${activeCategory === f.key ? 'border-gold bg-gold/10' : 'border-gray-200 dark:border-ink-mute bg-white dark:bg-ink-soft'}`}
-            >
-              <Text className={`text-sm ${activeCategory === f.key ? 'text-gold' : 'text-ink-mute dark:text-bone-soft'}`}>
-                {f.label}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
-
-      {isLoading ? (
-        <View className="px-6 pt-2">
-          {Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)}
-        </View>
-      ) : error ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-center text-ink-mute dark:text-bone-soft">
-            {t('common.error')}
-          </Text>
-        </View>
+      {items.isPending ? (
+        <View className="px-5"><Placeholders count={6} /></View>
+      ) : items.isError ? (
+        <ErrorState message={t('v.collection.error')} onRetry={() => items.refetch()} />
       ) : (
         <FlatList
-          data={filteredItems}
-          keyExtractor={(it) => it.id}
-          renderItem={({ item }) => <ItemRow item={item} hasExpiringWarranty={expiringItemIds.has(item.id)} />}
-          contentContainerClassName="px-6 pb-24"
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          initialNumToRender={8}
-          maxToRenderPerBatch={8}
-          windowSize={5}
-          removeClippedSubviews
-          keyboardShouldPersistTaps="handled"
-          ListEmptyComponent={
-            <View className="mt-20 items-center">
-              <Text className="text-ink-mute dark:text-bone-soft">
-                {search || activeCategory !== 'all' ? t('collection.noResults') : t('collection.empty')}
-              </Text>
-              {!search && activeCategory === 'all' && (
-                <Pressable onPress={() => router.push('/(tabs)/ajouter')} className="mt-4 rounded-xl bg-gold px-6 py-3">
-                  <Text className="font-semibold text-ink">{t('collection.addFirst')}</Text>
-                </Pressable>
-              )}
-            </View>
-          }
-          ListFooterComponent={<BannerAd />}
+          data={items.data}
+          keyExtractor={(i) => i.id}
+          numColumns={2}
+          columnWrapperStyle={{ gap: 12 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 120, gap: 12, flexGrow: 1 }}
+          refreshControl={<RefreshControl refreshing={items.isRefetching} onRefresh={() => items.refetch()} tintColor={colors.gold} />}
+          ListEmptyComponent={<EmptyState message={t('v.collection.empty')} cta={t('v.collection.emptyCta')} onPress={startAdd} />}
+          ListFooterComponent={items.data.length ? <BannerAd /> : null}
+          renderItem={({ item }) => (
+            <Pressable className="flex-1 active:opacity-80" onPress={() => router.push(`/item/${item.id}`)} accessibilityRole="button">
+              <ItemImage uri={item.primary_image_url} name={item.name} size={170} />
+              <Text numberOfLines={2} className="mt-2 text-ink dark:text-bone">{item.name}</Text>
+            </Pressable>
+          )}
         />
       )}
+
+      <Pressable
+        onPress={startAdd}
+        accessibilityRole="button"
+        accessibilityLabel={t('v.vault.emptyCta')}
+        className="absolute bottom-6 right-6 h-14 w-14 items-center justify-center rounded-full bg-gold shadow-lg active:opacity-80"
+      >
+        <Plus color={colors.ink} size={26} />
+      </Pressable>
     </SafeAreaView>
   );
 }

@@ -55,7 +55,18 @@ Légende : **[P]** décision produit (prise par le responsable produit) · **[T]
 | T11 | Après une résiliation Premium, les documents au-delà des droits Free sont conservés mais renvoyés `locked: true`, sans URL (OFFRE PREMIUM §6 : « conserve les données, réapplique les limites Free »). | |
 | T12 | Un accès à l'objet d'un autre utilisateur renvoie toujours `404 NOT_FOUND`, jamais `403`. | Ne révèle pas l'existence de l'objet. |
 
+| T13 | Stockage de développement HTTP (`/dev-storage`, URLs signées HMAC, expirantes) quand `STORAGE_MODE=memory`, pour tester l'app sur téléphone sans S3. Jamais enregistré en production. Les fichiers sont perdus au redémarrage du backend. | Outil de dev uniquement. |
+| T14 | App : client typé généré depuis `docs/openapi.yaml` (`openapi-typescript` + `openapi-fetch`, `npm run api:types`). Le cache TanStack Query n'est plus persisté sur l'appareil (données et URLs signées gardées en mémoire seulement). | Aucune donnée d'objet stockée en clair sur l'appareil. |
+| T15 | Viewer : WebView + pdf.js ; le PDF est lu en mémoire (base64), jamais écrit sur l'appareil ; menu contextuel et sélection désactivés ; watermark = nom complet de l'utilisateur ; URL expirée → une régénération silencieuse. | CONTRAT §11, UX_FLOWS §2.4. |
+| T16 | Le plan affiché par l'app vient de `GET /me` (serveur), plus du SDK RevenueCat côté client. | Anti-contournement (T7). |
+
 ### Points ouverts relevés pendant l'implémentation (2026-11-19)
+
+- **Marque** : ITEM_FORM indique « Sélecteur », mais aucune liste de marques n'est définie. Saisie libre pour l'instant.
+- **Liste « Autres objets certifiés »** : vide (aucun type défini). La catégorie s'affiche grisée.
+- **CGU** : aucun document dans le dépôt. Le lien « Conditions d'utilisation » n'est pas affiché tant qu'il n'existe pas.
+- **Support** : le bouton n'apparaît que si `EXPO_PUBLIC_SUPPORT_EMAIL` est renseigné (adresse à fournir).
+- **Textes non spécifiés** : écrans Connexion, Compléter le profil, Suppression d'objet, et libellés de formulaire rédigés au plus sobre (`app/src/locales/v1.fr.ts`, textes non marqués `[doc]`). À valider.
 
 - **PDF scannés** : un PDF sans couche texte obtient un score de lisibilité de 0 et est refusé (l'utilisateur peut photographier le document). Les pages ne sont pas encore rendues en image côté serveur. À valider.
 - **« Valeur détaillée » (Premium)** : non définie. Free et Premium reçoivent aujourd'hui la même valeur actuelle.

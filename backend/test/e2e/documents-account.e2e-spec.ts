@@ -128,6 +128,25 @@ describe('suppression d’un objet : purge totale', () => {
   });
 });
 
+describe('stockage de développement (URLs signées HTTP)', () => {
+  it('accepte un PUT signé, refuse une signature invalide, sert le fichier en lecture inline', async () => {
+    await completeProfile(ctx, 'kim');
+    const id = randomUUID();
+    const up = await ctx.http().post(`/items/${id}/certificate/upload-url`).set(auth('kim')).send({ content_type: 'image/png', size_bytes: 10 });
+    const qs = up.body.upload_url.split('?')[1];
+    const path = `/dev-storage/${encodeURIComponent(up.body.upload_key)}`;
+    await ctx.http().put(`${path}?${qs.replace(/sig=[0-9a-f]+/, 'sig=00')}`).set('Content-Type', 'image/png').send(Buffer.from('x')).expect(403);
+    await ctx.http().put(`${path}?${qs}`).set('Content-Type', 'image/png').send(await readableCertificate()).expect(200);
+    const conf = await ctx.http().post(`/items/${id}/certificate/confirm`).set(auth('kim')).send({});
+    expect(conf.status).toBe(200);
+    await ctx.http().post('/items').set(auth('kim')).send(watchPayload(id, 'KIM-1')).expect(201);
+    const cert = await ctx.http().get(`/items/${id}/certificate`).set(auth('kim')).expect(200);
+    const view = await ctx.http().get(`${path}?${cert.body.view_url.split('?')[1]}`).expect(200);
+    expect(view.headers['content-disposition']).toBe('inline');
+    expect(view.headers['content-type']).toBe('image/png');
+  });
+});
+
 describe('suppression du compte : irréversible, aucune donnée conservée', () => {
   it('purge base, stockage et compte Firebase', async () => {
     await completeProfile(ctx, 'jules');

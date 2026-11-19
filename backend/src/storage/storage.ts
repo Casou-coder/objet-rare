@@ -77,15 +77,39 @@ export class S3Storage implements Storage {
   }
 }
 
-/** Stockage en mémoire pour le développement local et les tests (interdit en production). */
+/**
+ * Stockage en mémoire pour le développement local et les tests (interdit en production).
+ * Avec `baseUrl`, les URLs pointent vers DevStorageController (HTTP, signées HMAC) pour que l'app
+ * sur téléphone puisse téléverser et afficher de vrais fichiers.
+ */
 export class MemoryStorage implements Storage {
   readonly objects = new Map<string, { body: Buffer; contentType: string }>();
+  private readonly secret = require('crypto').randomBytes(32) as Buffer;
 
-  async presignPut(key: string): Promise<string> {
-    return `memory://upload/${encodeURIComponent(key)}`;
+  constructor(private readonly baseUrl?: string) {}
+
+  sign(method: 'PUT' | 'GET', key: string, expires: number): string {
+    return require('crypto').createHmac('sha256', this.secret).update(`${method}\n${key}\n${expires}`).digest('hex');
+  }
+
+  verify(method: 'PUT' | 'GET', key: string, expires: number, sig: string): boolean {
+    if (!Number.isFinite(expires) || expires < Date.now()) return false;
+    const expected = this.sign(method, key, expires);
+    return sig.length === expected.length && require('crypto').timingSafeEqual(Buffer.from(sig), Buffer.from(expected));
+  }
+
+  private url(kind: 'upload' | 'view', method: 'PUT' | 'GET', key: string, ttl: number): string {
+    const expires = Date.now() + ttl * 1000;
+    const qs = `expires=${expires}&sig=${this.sign(method, key, expires)}`;
+    if (!this.baseUrl) return `memory://${kind}/${encodeURIComponent(key)}?${qs}`;
+    return `${this.baseUrl}/dev-storage/${encodeURIComponent(key)}?${qs}`;
+  }
+
+  async presignPut(key: string, _contentType?: string, ttl = 300): Promise<string> {
+    return this.url('upload', 'PUT', key, ttl);
   }
   async presignGet(key: string, ttl: number): Promise<string> {
-    return `memory://view/${encodeURIComponent(key)}?expires=${Date.now() + ttl * 1000}`;
+    return this.url('view', 'GET', key, ttl);
   }
   async get(key: string) {
     return this.objects.get(key) ?? null;
