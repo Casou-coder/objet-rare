@@ -39,3 +39,7 @@ pnpm-debug.*
 
 # Tests
 coverage/
+
+# Fichiers de configuration Firebase natifs (fournis via les secrets EAS)
+GoogleService-Info.plist
+google-services.json

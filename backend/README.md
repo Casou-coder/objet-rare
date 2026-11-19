@@ -18,6 +18,9 @@ npm run dev              # http://localhost:3000/health
 En local, `AUTH_MODE=dev` accepte le jeton `Bearer dev:<uid>:<email>` et `STORAGE_MODE=memory`
 garde les fichiers en mémoire. Ces deux modes sont refusés au démarrage si `NODE_ENV=production`.
 
+Avec Firebase (`AUTH_MODE=firebase`), voir [docs/FIREBASE.md](../docs/FIREBASE.md) : `FIREBASE_PROJECT_ID` et un compte
+de service (`GOOGLE_APPLICATION_CREDENTIALS` en local, `FIREBASE_SERVICE_ACCOUNT_BASE64` en hébergement).
+
 ## Tests
 
 ```powershell

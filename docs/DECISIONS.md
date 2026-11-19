@@ -70,3 +70,22 @@ Légende : **[P]** décision produit (prise par le responsable produit) · **[T]
 
 - **PDF scannés** : un PDF sans couche texte obtient un score de lisibilité de 0 et est refusé (l'utilisateur peut photographier le document). Les pages ne sont pas encore rendues en image côté serveur. À valider.
 - **« Valeur détaillée » (Premium)** : non définie. Free et Premium reçoivent aujourd'hui la même valeur actuelle.
+
+---
+
+## 2026-11-19 — Étape 4 : Firebase Auth (version impactée : backend 0.1.0 / app 0.2.0)
+
+| # | Décision | Justification |
+|---|---|---|
+| T17 | App : **SDK JavaScript Firebase** (`firebase` 13) plutôt que `@react-native-firebase`. E-mail utilisable dans Expo Go ; Google (`@react-native-google-signin/google-signin`) et Apple (`expo-apple-authentication`) via `signInWithCredential`, actifs seulement dans les builds EAS (boutons masqués dans Expo Go). | Pas de fichier natif Firebase à gérer, tests rapides dans Expo Go. |
+| T18 | Session Firebase persistée dans **SecureStore** (trousseau iOS / Keystore Android), découpée en morceaux de 1 800 caractères. | Aucun jeton en clair sur l'appareil (T14). |
+| T19 | API : compte de service via `GOOGLE_APPLICATION_CREDENTIALS` (fichier hors dépôt, local) ou `FIREBASE_SERVICE_ACCOUNT_BASE64` (hébergement). Démarrage refusé si `AUTH_MODE=firebase` sans projet. Seul le code d'erreur de vérification est journalisé, jamais le jeton. | Contrat §3.3. |
+| T20 | Mot de passe : 8 caractères minimum (app + règle Firebase). « Mot de passe oublié » répond toujours de façon neutre. Erreurs de connexion génériques, sans détail technique. | Pas d'énumération des comptes. Écrans `/login`, `/signup`, `/forgot-password` prévus par ARCHITECTURE §4. |
+| T21 | Connexion de développement conservée **uniquement** si Firebase n'est pas configuré dans l'app **et** en mode développement ; l'API la refuse hors `AUTH_MODE=dev` (lui-même interdit en production). | Permet de continuer à tester sans projet Firebase. |
+
+### Points ouverts relevés à l'étape 4
+
+- **Apple sur Android** : Apple ne fournit la connexion native que sur iOS. Proposition : bouton Apple sur iOS uniquement (Google + e-mail sur Android).
+- **Révocation Apple à la suppression du compte** : Apple exige de révoquer le jeton « Sign in with Apple » quand un compte est supprimé. Il faut une seconde fenêtre Apple au moment de la suppression. À faire avant la soumission App Store (étape 6).
+- **Vérification de l'adresse e-mail** : non spécifiée, non exigée pour l'instant.
+- **Nom fourni par Apple** : non utilisé pour préremplir « Nom complet » (le profil reste saisi à la main).

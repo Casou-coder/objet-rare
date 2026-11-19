@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, createParamDecorator } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, Logger, createParamDecorator } from '@nestjs/common';
 import type { Request } from 'express';
 import { AppError } from '../common/errors';
 import { CONFIG, type AppConfig } from '../config';
@@ -19,22 +19,38 @@ export interface TokenVerifier {
 export class FirebaseTokenVerifier implements TokenVerifier {
   private auth: import('firebase-admin/auth').Auth;
 
-  constructor(projectId?: string) {
+  private readonly logger = new Logger('Auth');
+
+  /**
+   * Identifiants Admin : compte de service (FIREBASE_SERVICE_ACCOUNT_BASE64) ou, à défaut,
+   * GOOGLE_APPLICATION_CREDENTIALS. Requis pour le contrôle de révocation et la suppression de compte.
+   */
+  constructor(projectId?: string, serviceAccount?: Record<string, unknown>) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { initializeApp, getApps, applicationDefault } = require('firebase-admin/app');
+    const { initializeApp, getApps, applicationDefault, cert } = require('firebase-admin/app');
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { getAuth } = require('firebase-admin/auth');
-    const app =
-      getApps()[0] ??
-      initializeApp(
-        process.env.GOOGLE_APPLICATION_CREDENTIALS ? { credential: applicationDefault(), projectId } : { projectId },
-      );
+    const credential = serviceAccount
+      ? cert(serviceAccount)
+      : process.env.GOOGLE_APPLICATION_CREDENTIALS
+        ? applicationDefault()
+        : undefined;
+    const app = getApps()[0] ?? initializeApp(credential ? { credential, projectId } : { projectId });
     this.auth = getAuth(app);
   }
 
   async verify(token: string): Promise<VerifiedIdentity> {
-    const decoded = await this.auth.verifyIdToken(token, true);
-    return { uid: decoded.uid, email: decoded.email ?? null };
+    try {
+      const decoded = await this.auth.verifyIdToken(token, true);
+      return { uid: decoded.uid, email: decoded.email ?? null };
+    } catch (e) {
+      // Seul le code d'erreur est journalisé, jamais le jeton.
+      const code = (e as { code?: string }).code ?? 'unknown';
+      if (!/id-token-(expired|revoked)|argument-error|user-disabled|user-not-found/.test(code)) {
+        this.logger.warn(`Vérification du jeton impossible (${code})`);
+      }
+      throw e;
+    }
   }
 
   async deleteUser(uid: string): Promise<void> {

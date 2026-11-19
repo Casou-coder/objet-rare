@@ -13,6 +13,8 @@ export interface AppConfig {
   databaseUrl: string;
   authMode: AuthMode;
   firebaseProjectId?: string;
+  /** Compte de service Firebase Admin (JSON décodé). Absent : identifiants par défaut (GOOGLE_APPLICATION_CREDENTIALS). */
+  firebaseServiceAccount?: Record<string, unknown>;
   storageMode: StorageMode;
   s3: {
     bucket: string;
@@ -44,6 +46,23 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   if (authMode === 'dev' && nodeEnv === 'production') {
     throw new Error('AUTH_MODE=dev est interdit en production');
   }
+  if (authMode !== 'dev' && authMode !== 'firebase') {
+    throw new Error('AUTH_MODE doit valoir firebase ou dev');
+  }
+  let firebaseServiceAccount: Record<string, unknown> | undefined;
+  if (env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    try {
+      firebaseServiceAccount = JSON.parse(Buffer.from(env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8'));
+    } catch {
+      // Le contenu n'est jamais affiché.
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_BASE64 illisible (JSON encodé en base64 attendu)');
+    }
+  }
+  const firebaseProjectId =
+    env.FIREBASE_PROJECT_ID || (firebaseServiceAccount?.project_id as string | undefined) || undefined;
+  if (authMode === 'firebase' && !firebaseProjectId) {
+    throw new Error('AUTH_MODE=firebase : FIREBASE_PROJECT_ID est requis');
+  }
   const storageMode = (env.STORAGE_MODE ?? 's3') as StorageMode;
   if (storageMode === 'memory' && nodeEnv === 'production') {
     throw new Error('STORAGE_MODE=memory est interdit en production');
@@ -54,7 +73,8 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     publicUrl: (env.PUBLIC_URL ?? `http://localhost:${env.PORT ?? 3000}`).replace(/\/$/, ''),
     databaseUrl: env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/vault',
     authMode,
-    firebaseProjectId: env.FIREBASE_PROJECT_ID,
+    firebaseProjectId,
+    firebaseServiceAccount,
     storageMode,
     s3: {
       bucket: env.S3_BUCKET ?? 'vault-documents',

@@ -73,7 +73,7 @@ export class AppModule {
         {
           provide: TOKEN_VERIFIER,
           useFactory: () =>
-            o.verifier ?? (config.authMode === 'dev' ? new DevTokenVerifier() : new FirebaseTokenVerifier(config.firebaseProjectId)),
+            o.verifier ?? (config.authMode === 'dev' ? new DevTokenVerifier() : new FirebaseTokenVerifier(config.firebaseProjectId, config.firebaseServiceAccount)),
         },
         { provide: OCR_PROVIDER, useValue: o.ocr ?? new NoopOcrProvider() },
         { provide: MARKET_PROVIDER, useValue: o.market ?? new NoopMarketProvider() },
