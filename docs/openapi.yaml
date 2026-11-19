@@ -1,0 +1,425 @@
+openapi: 3.0.3
+info:
+  title: Vault API
+  version: 0.1.0
+  description: |
+    Contrat stable V1 (OpenAPI.docx) + amendements journalisés dans docs/DECISIONS.md :
+    PUT /me (P8), POST /items/{id}/photo/upload-url (P11), GET /documents (T9).
+    Toutes les routes sauf /health exigent un ID token Firebase (Authorization: Bearer <token>).
+servers:
+  - url: http://localhost:3000
+security:
+  - bearer: []
+paths:
+  /health:
+    get:
+      security: []
+      operationId: health
+      responses: { '200': { description: OK } }
+  /me:
+    get:
+      operationId: getMe
+      responses:
+        '200': { description: Profil, content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } } }
+        '401': { $ref: '#/components/responses/Error' }
+    put:
+      operationId: putMe
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [full_name], properties: { full_name: { type: string, minLength: 2, maxLength: 120 } } } } }
+      responses:
+        '200': { description: Profil, content: { application/json: { schema: { $ref: '#/components/schemas/Me' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+  /metadata/controlled-other-types:
+    get:
+      operationId: getControlledOtherTypes
+      responses:
+        '200': { description: Liste contrôlée, content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: '#/components/schemas/ControlledOtherType' } } } } } } }
+  /metadata/certificate-issuers:
+    get:
+      operationId: getCertificateIssuers
+      responses:
+        '200': { description: Liste contrôlée, content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: '#/components/schemas/Issuer' } } } } } } }
+  /items:
+    get:
+      operationId: listItems
+      parameters:
+        - { name: view, in: query, schema: { type: string, enum: [collection, vault], default: collection } }
+        - { name: sort, in: query, schema: { type: string, enum: [recent, oldest], default: recent } }
+      responses:
+        '200': { description: Objets, content: { application/json: { schema: { type: object, properties: { items: { type: array, items: { $ref: '#/components/schemas/ItemSummary' } } } } } } }
+    post:
+      operationId: createItem
+      description: Crée l'objet à partir du brouillon {id} dont le certificat a été confirmé.
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/CreateItem' } } }
+      responses:
+        '201': { description: Objet créé, content: { application/json: { schema: { $ref: '#/components/schemas/Item' } } } }
+        '400': { $ref: '#/components/responses/Error' }
+        '402': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /items/{id}:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    get:
+      operationId: getItem
+      responses:
+        '200': { description: Passeport, content: { application/json: { schema: { $ref: '#/components/schemas/Item' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+    patch:
+      operationId: patchItem
+      description: Toujours refusé (décision P5, ITEM_IMMUTABLE).
+      responses:
+        '403': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      operationId: deleteItem
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/DeleteItem' } } }
+      responses:
+        '204': { description: Supprimé et purgé }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+  /items/{id}/certificate/upload-url:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    post:
+      operationId: certificateUploadUrl
+      description: "{id} est un UUID v4 généré par l'app : il identifie le brouillon puis l'objet."
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UploadRequest' } } }
+      responses:
+        '201': { description: URL présignée, content: { application/json: { schema: { $ref: '#/components/schemas/UploadTicket' } } } }
+        '402': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+  /items/{id}/certificate/confirm:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    post:
+      operationId: certificateConfirm
+      requestBody:
+        content: { application/json: { schema: { type: object, properties: { category: { $ref: '#/components/schemas/Category' } } } } }
+      responses:
+        '200': { description: Certificat lisible, extraction proposée, content: { application/json: { schema: { $ref: '#/components/schemas/CertificateConfirmation' } } } }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /items/{id}/certificate:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    get:
+      operationId: getCertificate
+      responses:
+        '200': { description: Métadonnées + URL temporaire, content: { application/json: { schema: { $ref: '#/components/schemas/Certificate' } } } }
+        '404': { $ref: '#/components/responses/Error' }
+  /items/{id}/photo/upload-url:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    post:
+      operationId: photoUploadUrl
+      requestBody:
+        required: true
+        content: { application/json: { schema: { $ref: '#/components/schemas/UploadRequest' } } }
+      responses:
+        '201': { description: URL présignée, content: { application/json: { schema: { $ref: '#/components/schemas/UploadTicket' } } } }
+  /items/{id}/documents/upload-url:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    post:
+      operationId: documentUploadUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UploadRequest'
+                - type: object
+                  properties: { type: { $ref: '#/components/schemas/DocumentType' } }
+      responses:
+        '201': { description: URL présignée, content: { application/json: { schema: { $ref: '#/components/schemas/UploadTicket' } } } }
+        '402': { $ref: '#/components/responses/Error' }
+  /items/{id}/documents/confirm:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    post:
+      operationId: documentConfirm
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [upload_key, type], properties: { upload_key: { type: string }, type: { $ref: '#/components/schemas/DocumentType' } } } } }
+      responses:
+        '200': { description: Documents de l'objet, content: { application/json: { schema: { $ref: '#/components/schemas/DocumentList' } } } }
+        '402': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+  /items/{id}/documents:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    get:
+      operationId: listItemDocuments
+      responses:
+        '200': { description: Documents, content: { application/json: { schema: { $ref: '#/components/schemas/DocumentList' } } } }
+  /items/{id}/value:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    get:
+      operationId: getValue
+      responses:
+        '200': { description: Valeur indicative, content: { application/json: { schema: { $ref: '#/components/schemas/MarketValue' } } } }
+  /items/{id}/value/refresh:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    post:
+      operationId: refreshValue
+      responses:
+        '202': { description: Mise à jour en cours, content: { application/json: { schema: { type: object, properties: { status: { type: string, enum: [updating] } } } } } }
+  /items/{id}/value/timeseries:
+    parameters: [{ $ref: '#/components/parameters/Id' }]
+    get:
+      operationId: getTimeseries
+      responses:
+        '200': { description: Historique, content: { application/json: { schema: { $ref: '#/components/schemas/Timeseries' } } } }
+  /documents:
+    get:
+      operationId: listAllDocuments
+      responses:
+        '200': { description: Page Documents, content: { application/json: { schema: { $ref: '#/components/schemas/AllDocuments' } } } }
+  /account:
+    delete:
+      operationId: deleteAccount
+      responses:
+        '204': { description: Compte et données supprimés définitivement }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+  responses:
+    Error:
+      description: Erreur au code figé
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    ErrorCode:
+      type: string
+      enum: [FREE_LIMIT_REACHED, DUPLICATE_CERTIFICATE, UNIQUE_ID_CONFLICT, CERTIFICATE_NOT_READABLE, VALIDATION_ERROR, NOT_FOUND, UNAUTHORIZED, FORBIDDEN, INTERNAL]
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code: { $ref: '#/components/schemas/ErrorCode' }
+            message: { type: string }
+            details: {}
+    Category: { type: string, enum: [watch, handbag, sneaker, certified_other] }
+    DocumentType: { type: string, enum: [insurance, invoice, maintenance, other] }
+    Currency: { type: string, enum: [EUR, USD, GBP, CHF] }
+    ProofStatus:
+      type: string
+      enum: [certificate_provided, readability_sufficient, readability_insufficient, holder_detected, holder_confirmed, unique_id_registered, conflict_detected]
+    DocumentStatus: { type: string, enum: [complete, missing_document, unreadable, conflict] }
+    Me:
+      type: object
+      required: [id, plan, profile_complete, limits, counts]
+      properties:
+        id: { type: string }
+        email: { type: string, nullable: true }
+        full_name: { type: string, nullable: true }
+        profile_complete: { type: boolean }
+        plan: { type: string, enum: [free, premium] }
+        account_created_at: { type: string, format: date-time }
+        limits:
+          type: object
+          required: [free_item_limit, items_used, can_add_item, free_timeseries_points, free_insurance_per_item]
+          properties:
+            free_item_limit: { type: integer }
+            items_used: { type: integer }
+            can_add_item: { type: boolean }
+            free_timeseries_points: { type: integer }
+            free_insurance_per_item: { type: integer }
+        counts:
+          type: object
+          required: [items, documents]
+          properties: { items: { type: integer }, documents: { type: integer } }
+    ControlledOtherType:
+      type: object
+      required: [id, label_fr, label_en, unique_id_label]
+      properties: { id: { type: string }, label_fr: { type: string }, label_en: { type: string }, unique_id_label: { type: string } }
+    Issuer:
+      type: object
+      required: [id, label_fr, label_en]
+      properties: { id: { type: string }, label_fr: { type: string }, label_en: { type: string } }
+    ItemSummary:
+      type: object
+      required: [id, name, primary_image_url, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        primary_image_url: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+        category: { $ref: '#/components/schemas/Category' }
+        updated_at: { type: string, format: date-time }
+        indicative_market_value: { type: number, nullable: true }
+        currency: { type: string, nullable: true }
+        value_as_of: { type: string, format: date-time, nullable: true }
+        document_status: { $ref: '#/components/schemas/DocumentStatus' }
+    CreateItem:
+      type: object
+      required: [id, category, brand, acquisition_price, issuer_id, certificate_type, declaration_accepted]
+      properties:
+        id: { type: string, format: uuid }
+        category: { $ref: '#/components/schemas/Category' }
+        brand: { type: string }
+        model: { type: string, description: "obligatoire pour sneaker et certified_other" }
+        reference_code: { type: string }
+        serial_number: { type: string, description: "watch : obligatoire" }
+        auth_code: { type: string, description: "handbag : obligatoire" }
+        sku: { type: string, description: "sneaker : obligatoire" }
+        size: { type: string, description: "sneaker : obligatoire" }
+        order_id: { type: string, description: "sneaker : order_id ou certificate_external_id" }
+        controlled_other_type_id: { type: string, description: "certified_other : obligatoire" }
+        unique_id_value: { type: string, description: "certified_other : obligatoire" }
+        acquisition_price:
+          type: object
+          required: [amount, currency]
+          properties: { amount: { type: number, minimum: 0 }, currency: { $ref: '#/components/schemas/Currency' } }
+        acquisition_date: { type: string, format: date }
+        issuer_id: { type: string }
+        certificate_type: { type: string, enum: [card, certificate, invoice, marketplace, third_party] }
+        certificate_external_id: { type: string }
+        cover_photo_upload_key: { type: string }
+        declaration_accepted: { type: boolean, enum: [true] }
+    Item:
+      type: object
+      required: [id, category, brand, name, unique_id, acquisition_price, proof_status, document_status, value, documents_count]
+      properties:
+        id: { type: string, format: uuid }
+        category: { $ref: '#/components/schemas/Category' }
+        controlled_other_type_id: { type: string, nullable: true }
+        brand: { type: string }
+        model: { type: string, nullable: true }
+        reference_code: { type: string, nullable: true }
+        name: { type: string }
+        attributes: { type: object, additionalProperties: { type: string } }
+        unique_id: { type: object, required: [type, value], properties: { type: { type: string }, value: { type: string } } }
+        acquisition_price: { type: object, required: [amount, currency], properties: { amount: { type: number }, currency: { type: string } } }
+        acquisition_date: { type: string, format: date, nullable: true }
+        primary_image_url: { type: string, nullable: true }
+        proof_status: { type: array, items: { $ref: '#/components/schemas/ProofStatus' } }
+        document_status: { $ref: '#/components/schemas/DocumentStatus' }
+        certificate:
+          type: object
+          nullable: true
+          properties:
+            id: { type: string }
+            issuer_id: { type: string }
+            certificate_type: { type: string }
+            external_id: { type: string, nullable: true }
+            uploaded_at: { type: string, format: date-time }
+            readability_status: { type: string, enum: [readable, unreadable] }
+        value:
+          type: object
+          required: [indicative_market_value, status]
+          properties:
+            indicative_market_value: { type: number, nullable: true }
+            currency: { type: string, nullable: true }
+            as_of: { type: string, format: date-time, nullable: true }
+            status: { type: string, enum: [idle, updating] }
+        documents_count: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+    DeleteItem:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, enum: [lost, stolen, sold, given, destroyed, other] }
+        free_text: { type: string, description: "obligatoire si reason = other" }
+    UploadRequest:
+      type: object
+      required: [content_type, size_bytes]
+      properties:
+        content_type: { type: string, enum: [application/pdf, image/jpeg, image/png, image/heic, image/webp] }
+        size_bytes: { type: integer, maximum: 20971520 }
+    UploadTicket:
+      type: object
+      required: [upload_url, upload_key, method, headers, expires_in]
+      properties:
+        upload_url: { type: string }
+        upload_key: { type: string }
+        method: { type: string, enum: [PUT] }
+        headers: { type: object, additionalProperties: { type: string } }
+        expires_in: { type: integer }
+    CertificateConfirmation:
+      type: object
+      required: [readability_score, readable, holder_name_detected, holder_match, extraction]
+      properties:
+        readability_score: { type: integer }
+        readable: { type: boolean }
+        holder_name_detected: { type: boolean }
+        holder_match: { type: string, enum: [match, mismatch, unknown] }
+        extraction: { type: object, additionalProperties: { type: string } }
+    Certificate:
+      type: object
+      required: [id, uploaded_at, document_format, readability_status, view_url, view_url_expires_in, watermark]
+      properties:
+        id: { type: string }
+        issuer_id: { type: string }
+        certificate_type: { type: string }
+        external_id: { type: string, nullable: true }
+        uploaded_at: { type: string, format: date-time }
+        document_format: { type: string, enum: [pdf, image] }
+        readability_status: { type: string, enum: [readable, unreadable] }
+        holder_match: { type: string, enum: [match, mismatch, unknown] }
+        view_url: { type: string }
+        view_url_expires_in: { type: integer }
+        watermark: { type: boolean }
+    Document:
+      type: object
+      required: [id, type, related_object_id, related_object_name, uploaded_at, document_format, locked, view_url, watermark]
+      properties:
+        id: { type: string }
+        type: { $ref: '#/components/schemas/DocumentType' }
+        related_object_id: { type: string }
+        related_object_name: { type: string }
+        uploaded_at: { type: string, format: date-time }
+        document_format: { type: string, enum: [pdf, image] }
+        locked: { type: boolean }
+        view_url: { type: string, nullable: true }
+        watermark: { type: boolean }
+    DocumentList:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Document' } } }
+    AllDocuments:
+      type: object
+      required: [certificates, insurances]
+      properties:
+        certificates:
+          type: array
+          items:
+            type: object
+            properties:
+              type: { type: string, enum: [certificate] }
+              related_object_id: { type: string }
+              related_object_name: { type: string }
+              uploaded_at: { type: string, format: date-time }
+              document_format: { type: string, enum: [pdf, image] }
+              document_status: { type: string, enum: [readable, action_required] }
+        insurances: { type: array, items: { $ref: '#/components/schemas/Document' } }
+    MarketValue:
+      type: object
+      required: [value_amount, sources, status, disclaimer]
+      properties:
+        value_amount: { type: number, nullable: true }
+        currency: { type: string, nullable: true }
+        confidence: { type: string, enum: [low, medium, high], nullable: true }
+        sources: { type: array, items: { type: string } }
+        as_of: { type: string, format: date-time, nullable: true }
+        status: { type: string, enum: [idle, updating] }
+        disclaimer: { type: string }
+    Timeseries:
+      type: object
+      required: [points, limited]
+      properties:
+        points:
+          type: array
+          items:
+            type: object
+            required: [as_of_date, value_amount, currency, source]
+            properties: { as_of_date: { type: string, format: date }, value_amount: { type: number }, currency: { type: string }, source: { type: string } }
+        limited: { type: boolean }

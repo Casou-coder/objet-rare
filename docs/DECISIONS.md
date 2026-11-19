@@ -42,7 +42,7 @@ Légende : **[P]** décision produit (prise par le responsable produit) · **[T]
 
 | # | Décision | Justification |
 |---|---|---|
-| T1 | ORM : TypeORM, migrations SQL versionnées. | Contrat d'intervention §4.2. |
+| T1 | TypeORM (DataSource + transactions) avec requêtes SQL explicites, migrations SQL versionnées (`backend/src/db/migrations`). | Contrat d'intervention §4.2. Les règles d'unicité restent lisibles dans le SQL. |
 | T2 | Création en deux temps : un **brouillon** (`item_drafts`) porte le certificat et l'OCR ; l'objet (`items`) n'est inséré qu'à la confirmation finale, dans une transaction. Les brouillons ne sont jamais listés et sont purgés après 24 h. | L'OpenAPI impose `POST /items/{id}/certificate/upload-url` alors que Décisions A1 interdit un objet visible sans certificat confirmé. Le comportement observable reste celui des documents : aucun objet n'existe avant la confirmation. |
 | T3 | Unicité garantie par **contraintes uniques PostgreSQL** (hash du certificat, couple type + valeur normalisée de l'identifiant), en plus des contrôles applicatifs. | Anti-contournement, y compris en cas de requêtes concurrentes. |
 | T4 | Normalisation de l'identifiant unique : majuscules, espaces et tirets ignorés. Sneakers : clé composite `SKU|TAILLE|COMMANDE-ou-ID-CERTIFICAT`. | ITEM_VALIDATION_SCHEMAS §Sneakers. |
@@ -50,3 +50,12 @@ Légende : **[P]** décision produit (prise par le responsable produit) · **[T]
 | T6 | Score de lisibilité calculé côté serveur (sharp : résolution, netteté, contraste), seuil 65. | BUSINESS_RULES §3.2. |
 | T7 | Limite Free appliquée **côté serveur** dans une transaction verrouillée sur l'utilisateur. Le plan est déterminé par le serveur (webhook RevenueCat), jamais par le client. | Contrat §3.2 : pas de contournement des limites Free. |
 | T8 | URLs de documents présignées S3, durée 5 min. Aucun nom, hash, identifiant ni URL dans les logs. | Contrat §3.3. |
+| T9 | Amendements de l'OpenAPI (formalisé dans `docs/openapi.yaml`) : `PUT /me` (P8), `POST /items/{id}/photo/upload-url` (P11), `GET /documents` (page Documents, évite N appels). `GET /items?view=collection` ne renvoie que image, nom et date (Page ma collection §3). | Endpoints ajoutés, aucun retiré. Codes d'erreur inchangés. |
+| T10 | L'empreinte unique couvre aussi les documents liés (registre `file_hashes`) : un même fichier ne peut jamais être importé deux fois, certificat ou document (CONTRAT §5.2). Code `DUPLICATE_CERTIFICATE`, message « Ce document est déjà associé à un objet existant. » pour les documents. | Pas de nouveau code d'erreur. |
+| T11 | Après une résiliation Premium, les documents au-delà des droits Free sont conservés mais renvoyés `locked: true`, sans URL (OFFRE PREMIUM §6 : « conserve les données, réapplique les limites Free »). | |
+| T12 | Un accès à l'objet d'un autre utilisateur renvoie toujours `404 NOT_FOUND`, jamais `403`. | Ne révèle pas l'existence de l'objet. |
+
+### Points ouverts relevés pendant l'implémentation (2026-11-19)
+
+- **PDF scannés** : un PDF sans couche texte obtient un score de lisibilité de 0 et est refusé (l'utilisateur peut photographier le document). Les pages ne sont pas encore rendues en image côté serveur. À valider.
+- **« Valeur détaillée » (Premium)** : non définie. Free et Premium reçoivent aujourd'hui la même valeur actuelle.
