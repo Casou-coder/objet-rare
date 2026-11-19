@@ -2,7 +2,7 @@
 
 Voici la liste exhaustive des services à connecter pour faire tourner l'app, du strict minimum (MVP) à la version commerciale complète.
 
-Pour tous ces services, utilise ton adresse **clement.dupas@hotmail.fr** comme identifiant principal et **[mot de passe supprimé]** comme mot de passe (à stocker aussi dans un gestionnaire — Bitwarden ou 1Password recommandés).
+Utilise un mot de passe **différent et unique** pour chaque service, stocké dans un gestionnaire (Bitwarden ou 1Password). Aucun identifiant ni mot de passe ne doit être écrit dans ce dépôt.
 
 ---
 
