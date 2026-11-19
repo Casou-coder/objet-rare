@@ -83,9 +83,13 @@ Légende : **[P]** décision produit (prise par le responsable produit) · **[T]
 | T20 | Mot de passe : 8 caractères minimum (app + règle Firebase). « Mot de passe oublié » répond toujours de façon neutre. Erreurs de connexion génériques, sans détail technique. | Pas d'énumération des comptes. Écrans `/login`, `/signup`, `/forgot-password` prévus par ARCHITECTURE §4. |
 | T21 | Connexion de développement conservée **uniquement** si Firebase n'est pas configuré dans l'app **et** en mode développement ; l'API la refuse hors `AUTH_MODE=dev` (lui-même interdit en production). | Permet de continuer à tester sans projet Firebase. |
 
+| # | Sujet | Décision | Remarque |
+|---|---|---|---|
+| P19 | Connexion Apple sur Android | **iOS uniquement**. Android : Google + e-mail. | Décision produit du 2026-11-19 (app 0.2.0). Déjà le comportement du code (`appleAvailable()`). |
+
 ### Points ouverts relevés à l'étape 4
 
-- **Apple sur Android** : Apple ne fournit la connexion native que sur iOS. Proposition : bouton Apple sur iOS uniquement (Google + e-mail sur Android).
+- ~~**Apple sur Android**~~ : tranché, voir P19.
 - **Révocation Apple à la suppression du compte** : Apple exige de révoquer le jeton « Sign in with Apple » quand un compte est supprimé. Il faut une seconde fenêtre Apple au moment de la suppression. À faire avant la soumission App Store (étape 6).
 - **Vérification de l'adresse e-mail** : non spécifiée, non exigée pour l'instant.
 - **Nom fourni par Apple** : non utilisé pour préremplir « Nom complet » (le profil reste saisi à la main).
