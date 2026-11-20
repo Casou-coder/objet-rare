@@ -152,6 +152,9 @@ principale : il donne les ordres aux autres et rend compte à l'utilisateur.
 | `relecteur-code` | `docs/revues/` (verdict avant fusion) |
 | `release-mobile` | `app/eas.json`, `docs/RELEASE.md` |
 | `juridique` | `docs/juridique/`, problèmes juridiques dans `docs/FONCTIONNALITES.md` |
+| `securite` | `docs/securite/`, problèmes de sécurité dans `docs/FONCTIONNALITES.md` |
+| `exploitation` | `docs/EXPLOITATION.md`, `render.yaml`, observabilité de l'API |
+| `tests-automatises` | `.github/workflows/`, `app/.maestro/`, props `testID`, `docs/TESTS_AUTOMATISES.md` |
 
 - Un agent = une tâche = un périmètre de fichiers. Deux agents ne modifient **jamais les mêmes fichiers** en parallèle.
 - Fichiers partagés, à modifier par **un seul agent à la fois** et à signaler : `docs/openapi.yaml`, `docs/DECISIONS.md`,

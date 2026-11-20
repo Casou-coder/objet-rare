@@ -70,7 +70,10 @@ Parcours d'ajout : `POST /items/{id}/certificate/upload-url` → `PUT` du fichie
 **C. Lecture du code des écrans** (comportement de l'app) : compare chaque écran de `app/src/app/` à sa page
 `.docx` (éléments affichés, états chargement / erreur / vide, textes exacts, navigation) et à `docs/design-system.md`.
 
-Une fonctionnalité impossible à tester avec A, B ou C (ex. Face ID, connexion Apple) = « Non testable » + raison.
+**D. Scénarios Maestro** (si `app/.maestro/` existe et qu'un émulateur Android est disponible) : lance les scénarios
+selon `docs/TESTS_AUTOMATISES.md` ; un scénario en échec = un problème. Sans émulateur, note « D indisponible ».
+
+Une fonctionnalité impossible à tester avec A, B, C ou D (ex. Face ID, connexion Apple) = « Non testable » + raison.
 
 ## Étape 3 — Consigner
 
@@ -112,7 +115,7 @@ problèmes ouverts par sévérité avec leurs IDs, problèmes vérifiés / rouve
 | ID | Fonctionnalité | Référence | Dernier test | Campagne | Méthode | Résultat | Problèmes |
 |---|---|---|---|---|---|---|---|
 
-Résultat : Conforme · Non conforme · Non testable (raison) — Méthode : A tests auto · B API locale · C lecture du code
+Résultat : Conforme · Non conforme · Non testable (raison) — Méthode : A tests auto · B API locale · C lecture du code · D scénario Maestro
 
 ## 2. Problèmes
 

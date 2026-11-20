@@ -49,6 +49,12 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 | `relecteur-code` | Toute branche avant fusion dans `master` | `docs/revues/` (Accepté / Refusé) |
 | `release-mobile` | Builds EAS, versions, TestFlight, Google Play | `app/eas.json`, `docs/RELEASE.md` |
 | `juridique` | Audit légal FR, DE, CH, UK, US et stores, textes légaux en brouillon | `docs/juridique/`, `BUG-…` juridiques |
+| `securite` | Audit de sécurité complet (local uniquement) | `docs/securite/`, `BUG-…` de sécurité |
+| `exploitation` | Surveillance, erreurs, sauvegardes, quotas, incidents | `docs/EXPLOITATION.md`, observabilité |
+| `tests-automatises` | Intégration continue, scénarios Maestro, `testID` | `.github/workflows/`, `app/.maestro/`, `docs/TESTS_AUTOMATISES.md` |
+
+**Mise en place (une fois, avant le premier cycle)** : `tests-automatises` (intégration continue d'abord) →
+`securite` (premier audit) → le `correcteur` traite ses `BUG-…` Bloquants dans le cycle standard.
 
 ## Cycle standard (à appliquer sans demander)
 
@@ -64,8 +70,12 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 **Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-backend` (si partie serveur) → `developpeur-frontend` (si interface), sur la même branche, l'un après l'autre → `relecteur-code`
 → `testeur-fonctionnel` (→ « Vérifiée ») → fusion.
 
-**Avant la publication** : `juridique` (audit des marchés visés) → `correcteur` sur ses `BUG-…` → `release-mobile`.
-Toute ligne `ACHAT REQUIS` de `release-mobile` est transmise telle quelle à l'utilisateur, sans rien lancer.
+**Avant la publication** : `juridique` (audit des marchés visés) et `securite` (nouvel audit) → `correcteur` sur
+leurs `BUG-…` → `exploitation` (surveillance, sauvegardes, procédure d'incident) → `release-mobile`.
+Toute ligne `ACHAT REQUIS` ou `COÛT` est transmise telle quelle à l'utilisateur, sans rien lancer.
+
+**Régulièrement** : `securite` après chaque fonctionnalité qui ajoute un endpoint ou un type de fichier ;
+`tests-automatises` après chaque nouvel écran (scénario Maestro et `testID`).
 
 Contenu, design et marketing : uniquement sur demande de l'utilisateur. Ordre fixe pour une page ou un écran :
 `designer` (spécification) → `integrateur-contenu` (intégration) → `relecteur-code` → `testeur-fonctionnel` (contrôle).
