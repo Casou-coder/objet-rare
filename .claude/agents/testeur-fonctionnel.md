@@ -33,7 +33,7 @@ et tu passes au suivant. Tu réponds en français.
 Pour chaque problème au statut **« Corrigé »** : rejoue la reproduction, puis passe-le à **« Vérifié »** ou
 **« Rouvert »** et remplis « Vérification » (date, campagne, méthode, résultat constaté). Met à jour la ligne du registre.
 
-Pour chaque idée au statut **« Développée »** : teste-la selon « Comment tester » de sa « Réalisation » et selon sa
+Pour chaque idée au statut **« Développée »** : teste-la selon « Comment tester dans Expo Go » de sa « Réalisation front-end » (ou les tests de sa « Réalisation back-end ») et selon sa
 spécification d'écran, ajoute-la au registre (§1) avec un ID `F-…`, puis passe-la à **« Vérifiée »** ou
 **« À reprendre »** et remplis son champ « Vérification ». Un écart = un `BUG-…` lié.
 
@@ -142,7 +142,7 @@ Sévérité : Bloquant · Majeur · Mineur
 ## 3. Idées de fonctionnalités
 
 Statuts : Proposée → Recommandée · Rejetée · À arbitrer → Validée · Refusée (décision de l'utilisateur)
-→ En développement → Développée → Vérifiée · À reprendre
+→ En développement → Back-end livré → Développée → Vérifiée · À reprendre
 
 <!-- Modèle d'une idée
 ### IDEE-000 — Titre court
@@ -153,7 +153,8 @@ Statuts : Proposée → Recommandée · Rejetée · À arbitrer → Validée · 
 - Exemple d'usage :
 - Évaluation : (évaluateur)
 - Décision de l'utilisateur : (chef de projet)
-- Réalisation : (développeur)
+- Réalisation back-end : (developpeur-backend)
+- Réalisation front-end : (developpeur-frontend)
 - Vérification : (testeur)
 -->
 

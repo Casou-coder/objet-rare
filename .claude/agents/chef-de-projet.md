@@ -44,7 +44,8 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 | `designer` | Nouvel écran ou nouvelle page à concevoir | `docs/ecrans/<nom>.md` |
 | `integrateur-contenu` | Intégrer un contenu (texte, page, sponsor, fiche store) | Contenu intégré + `docs/contenu/` |
 | `marketing` | Idées d'acquisition et de monétisation | `docs/marketing/` |
-| `developpeur-fonctionnalites` | Idées au statut « Validée » | Code + tests, champ « Réalisation » |
+| `developpeur-backend` | Partie serveur des idées « Validée » (OpenAPI, base, API) | `backend/`, OpenAPI, « Réalisation back-end » |
+| `developpeur-frontend` | Partie app des idées « Back-end livré » | `app/`, « Réalisation front-end » |
 | `relecteur-code` | Toute branche avant fusion dans `master` | `docs/revues/` (Accepté / Refusé) |
 | `release-mobile` | Builds EAS, versions, TestFlight, Google Play | `app/eas.json`, `docs/RELEASE.md` |
 | `juridique` | Audit légal FR, DE, CH, UK, US et stores, textes légaux en brouillon | `docs/juridique/`, `BUG-…` juridiques |
@@ -60,7 +61,7 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 6. **Idées** : `evaluateur-produit` évalue les idées « Proposée ».
 7. **Rapport** à l'utilisateur (modèle ci-dessous), avec la liste des idées « Recommandée » et des points « À arbitrer ».
 
-**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-fonctionnalites` → `relecteur-code`
+**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-backend` (si partie serveur) → `developpeur-frontend` (si interface), sur la même branche, l'un après l'autre → `relecteur-code`
 → `testeur-fonctionnel` (→ « Vérifiée ») → fusion.
 
 **Avant la publication** : `juridique` (audit des marchés visés) → `correcteur` sur ses `BUG-…` → `release-mobile`.

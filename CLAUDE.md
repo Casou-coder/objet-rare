@@ -147,7 +147,8 @@ principale : il donne les ordres aux autres et rend compte à l'utilisateur.
 | `designer` | `docs/ecrans/` |
 | `integrateur-contenu` | locales, écrans, `site/`, `docs/contenu/` |
 | `marketing` | `docs/marketing/` |
-| `developpeur-fonctionnalites` | code + tests des idées « Validée », champ « Réalisation » |
+| `developpeur-backend` | `backend/`, `docs/openapi.yaml`, « Réalisation back-end » des idées |
+| `developpeur-frontend` | `app/`, « Réalisation front-end » des idées |
 | `relecteur-code` | `docs/revues/` (verdict avant fusion) |
 | `release-mobile` | `app/eas.json`, `docs/RELEASE.md` |
 | `juridique` | `docs/juridique/`, problèmes juridiques dans `docs/FONCTIONNALITES.md` |
