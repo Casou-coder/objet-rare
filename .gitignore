@@ -1,5 +1,6 @@
 # Claude Code local settings (may contain API keys)
-.claude/
+.claude/*
+!.claude/agents/
 
 # Node
 node_modules/

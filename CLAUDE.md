@@ -136,6 +136,18 @@ Ajout de dépendance dans l'app : `npx.cmd expo install <paquet>` (versions comp
 
 ## 10. Travail à plusieurs agents
 
+Les agents sont définis dans `.claude/agents/`. Le **chef de projet** (`chef-de-projet`) est l'agent de la session
+principale : il donne les ordres aux autres et rend compte à l'utilisateur.
+
+| Agent | Écrit dans |
+|---|---|
+| `testeur-fonctionnel` | `docs/FONCTIONNALITES.md` (registre, problèmes, idées, campagnes) |
+| `correcteur` | code + tests, champ « Correctif » des problèmes |
+| `evaluateur-produit` | champ « Évaluation » des idées |
+| `designer` | `docs/ecrans/` |
+| `integrateur-contenu` | locales, écrans, `site/`, `docs/contenu/` |
+| `marketing` | `docs/marketing/` |
+
 - Un agent = une tâche = un périmètre de fichiers. Deux agents ne modifient **jamais les mêmes fichiers** en parallèle.
 - Fichiers partagés, à modifier par **un seul agent à la fois** et à signaler : `docs/openapi.yaml`, `docs/DECISIONS.md`,
   `app/src/locales/v1.*.ts`, `app/src/components/ui.tsx`, `backend/src/db/migrations/`, `package.json` / lockfiles.
