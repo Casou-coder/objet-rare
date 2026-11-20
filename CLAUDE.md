@@ -167,6 +167,10 @@ principale : il donne les ordres aux autres et rend compte à l'utilisateur.
   (`docs(pilotage): <résumé>`), pour que les nouvelles branches partent d'un état à jour.
 - Avant de commencer un ordre dans un worktree : `git merge master` sur ta branche si elle existe déjà, pour partir
   des derniers correctifs et fichiers commités.
+- Un worktree n'a ni `node_modules` ni fichiers `.env` (ignorés par git) : au premier lancement, `npm.cmd ci` dans
+  `backend` et dans `app`. Pour les tests e2e, exporte `TEST_DATABASE_URL` depuis `backend/.env` du **dossier
+  principal**, dans la commande elle-même, sans copier ce fichier ni afficher sa valeur :
+  `export $(grep -E '^TEST_DATABASE_URL=' "<dossier principal>/backend/.env") && npm.cmd test`.
 - Termine par un résumé de 3 lignes : ce qui a changé, l'état des tests, comment le tester dans Expo Go.
 
 ## 11. Où en est le projet (2026-11-20)
