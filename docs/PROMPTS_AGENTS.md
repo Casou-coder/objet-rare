@@ -150,7 +150,7 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 6. **Idées** : `evaluateur-produit` évalue les idées « Proposée ».
 7. **Rapport** à l'utilisateur (modèle ci-dessous), avec la liste des idées « Recommandée » et des points « À arbitrer ».
 
-**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-backend` (si partie serveur) → `developpeur-frontend` (si interface), sur la même branche, l'un après l'autre → `relecteur-code`
+**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-backend` (si partie serveur) → `developpeur-frontend` (si interface, sur une branche « -front » créée depuis celle du back-end : c'est elle qui est relue et fusionnée) → `relecteur-code`
 → `testeur-fonctionnel` (→ « Vérifiée ») → fusion.
 
 **Avant la publication** : `juridique` (audit des marchés visés) et `securite` (nouvel audit) → `correcteur` sur
@@ -1100,7 +1100,10 @@ pas, écris l'écart dans « Non fait / à arbitrer » pour le back-end, ne cont
 1. Lis `CLAUDE.md`, `docs/design-system.md` (en entier), la spécification d'écran, l'idée avec sa « Réalisation
    back-end », et le code concerné : `app/src/components/ui.tsx`, `app/src/api/client.ts`, `app/src/api/hooks.ts`,
    les écrans voisins dans `app/src/app/`, `app/src/locales/v1.fr.ts` et `v1.en.ts`.
-2. Travaille sur la **même branche** que le back-end (indiquée dans « Réalisation back-end »), sinon celle de l'ordre.
+2. Branche : si un back-end a été livré, crée **ta propre branche à partir de la sienne**
+   (`git switch -c <branche back-end>-front <branche back-end>`, ex. `agent/feature-IDEE-004-front`) : la branche du
+   back-end est déjà ouverte dans son worktree et ne peut pas l'être dans le tien. Elle contient ainsi l'API et l'app ;
+   c'est elle qui est relue et fusionnée. Sans back-end : la branche de l'ordre, créée depuis `master`.
 
 #### Ordre de réalisation
 

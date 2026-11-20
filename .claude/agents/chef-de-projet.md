@@ -67,7 +67,7 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 6. **Idées** : `evaluateur-produit` évalue les idées « Proposée ».
 7. **Rapport** à l'utilisateur (modèle ci-dessous), avec la liste des idées « Recommandée » et des points « À arbitrer ».
 
-**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-backend` (si partie serveur) → `developpeur-frontend` (si interface), sur la même branche, l'un après l'autre → `relecteur-code`
+**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-backend` (si partie serveur) → `developpeur-frontend` (si interface, sur une branche « -front » créée depuis celle du back-end : c'est elle qui est relue et fusionnée) → `relecteur-code`
 → `testeur-fonctionnel` (→ « Vérifiée ») → fusion.
 
 **Avant la publication** : `juridique` (audit des marchés visés) et `securite` (nouvel audit) → `correcteur` sur
