@@ -165,6 +165,11 @@ principale : il donne les ordres aux autres et rend compte à l'utilisateur.
   dans le dossier principal (jamais la copie de son worktree, qui n'est pas à jour), et ne les commite jamais sur sa
   branche. Le **chef de projet** les commite sur `master` après chaque mise à jour
   (`docs(pilotage): <résumé>`), pour que les nouvelles branches partent d'un état à jour.
+- **Livrables des agents sans worktree** (designer, testeur, sécurité, relecteur, évaluateur, juridique, marketing) :
+  `docs/ecrans/`, `docs/revues/`, `docs/securite/`, `docs/juridique/`, `docs/marketing/` sont écrits dans le dossier
+  principal ; ces agents ne commitent pas. Le **chef de projet** les commite sur `master` à chaque livraison, avec les
+  fichiers de coordination. Un agent en worktree qui en a besoin (ex. une spécification d'écran) les lit dans le
+  dossier principal ou fait `git merge master` après leur commit.
 - Avant de commencer un ordre dans un worktree : `git merge master` sur ta branche si elle existe déjà, pour partir
   des derniers correctifs et fichiers commités.
 - Un worktree n'a ni `node_modules` ni fichiers `.env` (ignorés par git) : au premier lancement, `npm.cmd ci` dans

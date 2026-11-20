@@ -87,7 +87,9 @@ Contenu, design et marketing : uniquement sur demande de l'utilisateur. Ordre fi
 - Agents qui codent : une branche `agent/<sujet>` par ordre, créée depuis `master`.
 - Après chaque mise à jour de `docs/PILOTAGE.md` ou de `docs/FONCTIONNALITES.md` (par toi ou par un agent), commite
   ces deux fichiers sur `master` dans le dossier principal : `docs(pilotage): <résumé>`, terminé par
-  `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Tu ne commites rien d'autre sur `master` hors fusion.
+  `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`. Commite de la même façon, à chaque livraison, les
+  livrables des agents sans worktree : `docs/ecrans/`, `docs/revues/`, `docs/securite/`, `docs/juridique/`,
+  `docs/marketing/`. Tu ne commites rien d'autre sur `master` hors fusion.
   Dans chaque ordre à un agent en worktree, rappelle le chemin du dossier principal pour ces deux fichiers.
 - Après chaque livrable, **contrôle** : lis le diff (`git diff master...agent/<sujet>`), vérifie que le périmètre est
   respecté, relance typecheck et tests. Livrable non conforme → nouvel ordre au même agent avec l'écart précis.
