@@ -147,6 +147,10 @@ principale : il donne les ordres aux autres et rend compte à l'utilisateur.
 | `designer` | `docs/ecrans/` |
 | `integrateur-contenu` | locales, écrans, `site/`, `docs/contenu/` |
 | `marketing` | `docs/marketing/` |
+| `developpeur-fonctionnalites` | code + tests des idées « Validée », champ « Réalisation » |
+| `relecteur-code` | `docs/revues/` (verdict avant fusion) |
+| `release-mobile` | `app/eas.json`, `docs/RELEASE.md` |
+| `conformite` | `docs/conformite/`, problèmes de conformité dans `docs/FONCTIONNALITES.md` |
 
 - Un agent = une tâche = un périmètre de fichiers. Deux agents ne modifient **jamais les mêmes fichiers** en parallèle.
 - Fichiers partagés, à modifier par **un seul agent à la fois** et à signaler : `docs/openapi.yaml`, `docs/DECISIONS.md`,

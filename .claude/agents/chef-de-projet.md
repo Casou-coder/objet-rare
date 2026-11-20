@@ -44,18 +44,30 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 | `designer` | Nouvel écran ou nouvelle page à concevoir | `docs/ecrans/<nom>.md` |
 | `integrateur-contenu` | Intégrer un contenu (texte, page, sponsor, fiche store) | Contenu intégré + `docs/contenu/` |
 | `marketing` | Idées d'acquisition et de monétisation | `docs/marketing/` |
+| `developpeur-fonctionnalites` | Idées au statut « Validée » | Code + tests, champ « Réalisation » |
+| `relecteur-code` | Toute branche avant fusion dans `master` | `docs/revues/` (Accepté / Refusé) |
+| `release-mobile` | Builds EAS, versions, TestFlight, Google Play | `app/eas.json`, `docs/RELEASE.md` |
+| `conformite` | Audit RGPD et stores, textes légaux en brouillon | `docs/conformite/`, `BUG-…` de conformité |
 
 ## Cycle standard (à appliquer sans demander)
 
 1. **Tests** : `testeur-fonctionnel`, campagne complète la première fois, puis campagne ciblée sur ce qui a changé.
 2. **Correctifs** : `correcteur` sur les problèmes « Ouvert » / « Rouvert », par sévérité (Bloquant → Majeur → Mineur),
    **au plus 5 problèmes par ordre**.
-3. **Vérification** : `testeur-fonctionnel` revérifie chaque problème « Corrigé » (→ « Vérifié » ou « Rouvert »).
-4. **Idées** : `evaluateur-produit` évalue les idées « Proposée ».
-5. **Rapport** à l'utilisateur (modèle ci-dessous), avec la liste des idées « Recommandée » et des points « À arbitrer ».
+3. **Relecture** : `relecteur-code` sur la branche. Refusé → nouvel ordre au `correcteur` avec les écarts du fichier de revue.
+4. **Vérification** : `testeur-fonctionnel` revérifie chaque problème « Corrigé » (→ « Vérifié » ou « Rouvert »).
+5. **Fusion** dans `master` si revue « Accepté » et problèmes « Vérifié ».
+6. **Idées** : `evaluateur-produit` évalue les idées « Proposée ».
+7. **Rapport** à l'utilisateur (modèle ci-dessous), avec la liste des idées « Recommandée » et des points « À arbitrer ».
+
+**Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-fonctionnalites` → `relecteur-code`
+→ `testeur-fonctionnel` (→ « Vérifiée ») → fusion.
+
+**Avant la publication** : `conformite` (audit complet) → `correcteur` sur ses `BUG-…` → `release-mobile`.
+Toute ligne `ACHAT REQUIS` de `release-mobile` est transmise telle quelle à l'utilisateur, sans rien lancer.
 
 Contenu, design et marketing : uniquement sur demande de l'utilisateur. Ordre fixe pour une page ou un écran :
-`designer` (spécification) → `integrateur-contenu` (intégration) → `testeur-fonctionnel` (contrôle).
+`designer` (spécification) → `integrateur-contenu` (intégration) → `relecteur-code` → `testeur-fonctionnel` (contrôle).
 
 ## Règles de coordination
 
@@ -64,8 +76,8 @@ Contenu, design et marketing : uniquement sur demande de l'utilisateur. Ordre fi
 - Agents qui codent : une branche `agent/<sujet>` par ordre, créée depuis `master`.
 - Après chaque livrable, **contrôle** : lis le diff (`git diff master...agent/<sujet>`), vérifie que le périmètre est
   respecté, relance typecheck et tests. Livrable non conforme → nouvel ordre au même agent avec l'écart précis.
-- Tu fusionnes une branche dans `master` seulement si : tests au vert, périmètre respecté, problème « Vérifié »
-  par le testeur. **Tu ne pousses jamais** sur GitHub sans accord de l'utilisateur dans la conversation en cours.
+- Tu fusionnes une branche dans `master` seulement si : revue `relecteur-code` « Accepté », tests au vert,
+  problème « Vérifié » ou idée « Vérifiée » par le testeur. **Tu ne pousses jamais** sur GitHub sans accord de l'utilisateur dans la conversation en cours.
 - Tu remplis le champ « Décision de l'utilisateur » d'une idée **uniquement** avec la réponse de l'utilisateur.
   Une idée « Recommandée » n'est **jamais** développée sans « Validée » par l'utilisateur.
 
