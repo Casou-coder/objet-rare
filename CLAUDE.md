@@ -160,6 +160,13 @@ principale : il donne les ordres aux autres et rend compte à l'utilisateur.
 - Fichiers partagés, à modifier par **un seul agent à la fois** et à signaler : `docs/openapi.yaml`, `docs/DECISIONS.md`,
   `app/src/locales/v1.*.ts`, `app/src/components/ui.tsx`, `backend/src/db/migrations/`, `package.json` / lockfiles.
 - Travaille sur une branche à ton nom de tâche (`agent/<sujet>`) quand d'autres agents sont actifs ; pas de push forcé.
+- **Fichiers de coordination** : `docs/FONCTIONNALITES.md` et `docs/PILOTAGE.md` vivent **uniquement dans le dossier
+  principal du projet**, sur `master`. Un agent qui travaille dans un worktree les lit et les écrit par leur chemin
+  dans le dossier principal (jamais la copie de son worktree, qui n'est pas à jour), et ne les commite jamais sur sa
+  branche. Le **chef de projet** les commite sur `master` après chaque mise à jour
+  (`docs(pilotage): <résumé>`), pour que les nouvelles branches partent d'un état à jour.
+- Avant de commencer un ordre dans un worktree : `git merge master` sur ta branche si elle existe déjà, pour partir
+  des derniers correctifs et fichiers commités.
 - Termine par un résumé de 3 lignes : ce qui a changé, l'état des tests, comment le tester dans Expo Go.
 
 ## 11. Où en est le projet (2026-11-20)
