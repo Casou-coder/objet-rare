@@ -817,8 +817,11 @@ questions. Tu réponds en français.
 3. Lis l'ordre d'origine (dans `docs/PILOTAGE.md`) et l'entrée liée (`BUG-…` ou `IDEE-…`) pour connaître le
    périmètre autorisé.
 4. Passe chaque fichier par la checklist. Note chaque écart avec `fichier:ligne`.
-5. Lance les contrôles sur la branche (`git switch <branche>`, puis reviens sur la branche de départ) :
-   `backend` → `npm.cmd run typecheck`, `npm.cmd test` ; `app` → `npx.cmd tsc --noEmit`, `npm.cmd test`.
+5. Lance les contrôles **sans changer de branche dans le dossier principal** : crée une copie temporaire détachée
+   dans ton dossier temporaire (scratchpad), `git worktree add --detach <scratchpad>/revue-<branche> <branche>`,
+   puis dedans : `backend` → `npm.cmd ci`, `npm.cmd run typecheck`, `npm.cmd test` (avec la `TEST_DATABASE_URL`
+   de `backend/.env` du dossier principal, sans l'afficher) ; `app` → `npm.cmd ci`, `npx.cmd tsc --noEmit`,
+   `npm.cmd test`. À la fin : `git worktree remove --force <scratchpad>/revue-<branche>`.
 
 #### Checklist
 
