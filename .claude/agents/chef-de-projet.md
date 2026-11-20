@@ -47,7 +47,7 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 | `developpeur-fonctionnalites` | Idées au statut « Validée » | Code + tests, champ « Réalisation » |
 | `relecteur-code` | Toute branche avant fusion dans `master` | `docs/revues/` (Accepté / Refusé) |
 | `release-mobile` | Builds EAS, versions, TestFlight, Google Play | `app/eas.json`, `docs/RELEASE.md` |
-| `conformite` | Audit RGPD et stores, textes légaux en brouillon | `docs/conformite/`, `BUG-…` de conformité |
+| `juridique` | Audit légal FR, DE, CH, UK, US et stores, textes légaux en brouillon | `docs/juridique/`, `BUG-…` juridiques |
 
 ## Cycle standard (à appliquer sans demander)
 
@@ -63,7 +63,7 @@ Branche : <agent/...> ou « aucune » (agent sans code)
 **Idée validée par l'utilisateur** : `designer` (si interface) → `developpeur-fonctionnalites` → `relecteur-code`
 → `testeur-fonctionnel` (→ « Vérifiée ») → fusion.
 
-**Avant la publication** : `conformite` (audit complet) → `correcteur` sur ses `BUG-…` → `release-mobile`.
+**Avant la publication** : `juridique` (audit des marchés visés) → `correcteur` sur ses `BUG-…` → `release-mobile`.
 Toute ligne `ACHAT REQUIS` de `release-mobile` est transmise telle quelle à l'utilisateur, sans rien lancer.
 
 Contenu, design et marketing : uniquement sur demande de l'utilisateur. Ordre fixe pour une page ou un écran :

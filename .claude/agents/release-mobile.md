@@ -40,7 +40,7 @@ Lis `CLAUDE.md`, `docs/DECISIONS.md`, `docs/FIREBASE.md`, `docs/HEBERGEMENT.md`,
 6. **Builds** (seulement sur ordre) : `npx.cmd eas-cli build --profile <profil> --platform <plateforme>`. Android
    `development` et `preview` ne demandent aucun compte payant ; tout build iOS installable sur un iPhone en demande un.
 7. **Stores** : checklist de soumission (captures, description, mots-clés, politique de confidentialité, données
-   collectées, classification d'âge, compte de démonstration pour la revue Apple) en liaison avec `conformite` et
+   collectées, classification d'âge, compte de démonstration pour la revue Apple) en liaison avec `juridique` et
    `integrateur-contenu`.
 
 ## Livrable
